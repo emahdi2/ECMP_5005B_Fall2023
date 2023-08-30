@@ -1,0 +1,2859 @@
+---
+title: "Data Visualizing In R"
+subtitle: "Data Analytics (ECMP 5005B)"
+author: "Esam Mahdi"
+institute: |
+    | School of Mathematics and Statistics
+    | Master of Engineering - Engineering Practice
+    | Carleton University
+date: "September 06, 2023"
+date-format: full
+format:
+  revealjs:
+    width: 1280
+    height: 720
+    menu: true
+    slide-number: true
+    title-slide-style: pandoc
+    html-math-method: katex
+    theme: [default, ../theme-solaris.scss]
+    css: "style.css"
+    self_contained: true
+    chalkboard: true
+    footer: |
+      &copy; Esam Mahdi (2023)
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/OneDrive - Carleton University/Courses/ECMP 5005B_Data Analytics/Fall2023/ECMP_5005B_Fall2023/Topic1")
+```
+
+## Learning objectives {.left}
+
+::: columns
+::: {.column width="25%"}
+::: {.column width="100%"}
+![](images/R.png){width="50%"}</b>
+:::
+
+::: {.column width="100%"}
+![](images/RStudio.png){width="50%"}
+:::
+
+::: {.column width="100%"}
+![](images/rmd.png){width="50%"}
+:::
+:::
+
+::: {.column width="75%"}
+**By the end of this chapter, you should be able to do the following:**
+
+::: incremental
+-   Setup [**R**]{.gray} language environment with <b class="gray">Rstudio</b>.
+-   Install <b class="gray">tidyverse</b> package and other packages and use functions to:
+    -   Import data from different sources ([txt, csv, xlsx, dta, sav, sas7bdat]{.gray}, etc.)
+    -   Recap some useful [**R**]{.gray} commands.
+    -   Manipulate data ([cleaning, tidying, transforming, summarizing data]{.gray}, etc.)
+-   Visualize data and build effective graphs and elegant interactive plots.
+-   Use [**R Quarto/Markdown**]{.gray} to weave together narrative text and code to produce elegantly formatted document.
+:::
+:::
+:::
+
+## Typical steps for data analytics
+
+::: {.infobox4 .center}
+![](images/chart.png){height="490px"} </br>
+:::
+
+<sub>[**Source**]{.gray}: Robert I. Kabacoff. R in Action: Data analysis and graphics with R and Tidyverse. 2nd ed., Manning, 2022. </sub>
+
+## Getting started
+
+::: columns
+::: {.column width="100%"}
+::: {data-fragment-index="0"}
+-   Download and install [**R**]{.gray} from the <a href="https://cloud.r-project.org/" target="_blank">**comprehensive R archive network(CRAN)**</a> website.
+:::
+
+::: {.fragment data-fragment-index="1"}
+-   Download and install <b class="gray">Rstudio</b> from <a href="http://www.rstudio.com/download" target="_blank">http://www.rstudio.com/download</a>.
+:::
+
+::: {.fragment data-fragment-index="2"}
+-   By July 27, 2023, the <a href="https://cloud.r-project.org/web/packages/available_packages_by_name.html" target="_blank">**CRAN**</a> package repository features 19880 available packages.
+
+::: {.infobox4 .caution data-latex="{caution}"}
+<b class="red">Do not trust all of these packages!</b>
+:::
+:::
+
+::: {.fragment data-fragment-index="3"}
+-   <a href="https://cran.r-project.org/web/views/" target="_blank">**CRAN task views**</a> provide a brief overview of the included packages.
+:::
+
+::: {.fragment data-fragment-index="4"}
+-   To see what packages are installed in your computer, type the following command:
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=F, warning=FALSE, message=FALSE, echo=TRUE}
+library()
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="5"}
+-   To show the directory where packages are stored on your computer, type the following command:
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=F, warning=FALSE, message=FALSE, echo=TRUE}
+.libPaths() # Exercise: Why it shows two library paths?
+```
+:::
+:::
+:::
+:::
+
+## Getting started
+
+::: {data-fragment-index="0"}
+-   By default, [**R**]{.gray} is coming with the following 15 **base packages**:
+    -   <b class="gray">base, compiler, datasets, grDevices, graphics, grid, methods, parallel, splines, stats, stats4, tcltk, tools, translations, utils</b>.
+        -   You can check what functions are available from the package <b class="gray">stats</b> by typing the following code:
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+help(package = "stats")
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="2"}
+-   In addition to base packages, there are 15 **recommended packages** available the from [CRAN](https://cran.r-project.org/):
+    -   <b class="gray">KernSmooth, MASS, Matrix, boot, class, cluster, nlme, rpart, spatial, codetools, foreign, lattice, mgcv, nnet, survival</b>.
+    -   For example, you may need to use the function [lm.gls()]{.green1} implemented in the package <b class="gray">MASS</b> to fit a linear model using the generalized least squares method.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+library(MASS) #load the package MASS 
+help(lm.gls)  #get help on this function. Same as typing ?lm.gls  
+```
+:::
+:::
+
+## Getting started
+
+::: {.infobox2 .caution data-latex="{caution}"}
+One problem that we usually face when we load and attach some libraries in [**R**]{.gray} is that these libraries might have different masked functions share the same namespace. For example, the function [lag()]{.green1} is masked by both <b class="gray">stats</b> and <b class="gray">dplyr</b> packages. It performs a different tasks in both. Thus, you need to be careful if you are using [lag()]{.green1} in [**R**]{.gray} while the package <b class="gray">dplyr</b>.
+:::
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+stats::lag #to explicitly use the lag() function from the stats package
+dplyr::lag #to explicitly use the lag() function from the dplyr package
+```
+:::
+
+### Example
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+set.seed(1)    #set reproducible results 
+x <- rnorm(5)  #generate 5 observations from the standard normal distribution N(0,1)
+stats::lag(x, 2) #shift the time base back by 2 (keep 1st & 2nd observations)
+dplyr::lag(x, 2) #shift the time base back by 2 (replace 1st & 2nd observations)
+```
+:::
+
+## Simple [**R**]{.gray} code
+
+Let's start with the following [**R**]{.gray} code
+
+::: columns
+::: {.column width="67%"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+# create two numeric vectors, each with 8 observations
+wt <- c(60,70,63,55,48,49,58,58)
+age = c(20,17,23,24,19,19,16,26) #note "<-" symbol can be replaced by "="
+# get a random sample (without replacement) of 8 observations
+set.seed(5) #set seed to reproduce the same random sample
+z=sample(150:190, size = 8)
+# replicat a string "Male" 3 times & get a vector of characters  
+Male=rep("Male", times = 3)
+# replicat a string "Female" 5 times & get a vector of characters 
+Female=rep("Female", times = 5)
+# combine the two categorical variables into one nominal variable
+s = c(Male, Female)
+# create an ordinal categorical variable 
+income=c("Low","High","Low","Low","Middle","Middle","Middle","High")
+# stores categorical values as vector of integers (factors)
+sex=factor(s)
+income=factor(income,order=TRUE,levels=c("Low","Middle","High"))
+# create a data frame and name the variables
+mydata=data.frame(id=1:8,weight=wt,age=age,z=z,sex=sex,Sex=s,income)
+```
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Create a new dataset
+status = c("worker","student","worker","worker","student","student",
+           "student","student")
+my_newdata <- data.frame(id=c(1:4,8:11),status=status)
+```
+:::
+:::
+
+::: {.column width="33%"}
+::: {.fragment data-fragment-index="0"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+# create two numeric vectors, each with 8 observations
+wt <- c(60,70,63,55,48,49,58,58)
+age = c(20,17,23,24,19,19,16,26) #Note: "=" is same as "<-"
+# get a random sample (without replacement) of 8 observations
+set.seed(5) #set seed to reproduce the same random sample
+z=sample(150:190, size = 8)
+# replicat a string "Male" 3 times & get a vector of characters  
+Male=rep("Male", times = 3)
+# replicat a string "Female" 5 times & get a vector of characters 
+Female=rep("Female", times = 5)
+# combine the two categorical variables into nominal variable
+s=c(Male, Female)
+# create an ordinal categorical variable 
+income=c("Low","High","Low","Low","Middle","Middle","Middle","High")
+# stores categorical values as vector of integers (factors)
+sex=factor(s)
+income=factor(income,order=TRUE,levels=c("Low","Middle","High"))
+# create a data frame and name the variables
+mydata=data.frame(id=1:8,weight=wt,age=age,z=z,sex=sex,Sex=s,income)
+```
+
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#return first 6 observations
+head(mydata)
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="1"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#get variables names
+names(mydata)
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="2"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#display the Structure of the data
+str(mydata)
+```
+:::
+:::
+:::
+:::
+
+## 
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+mat1 <- matrix(wt, nrow = 5, ncol = 2) #create a matrix of dimension 5x2
+mat2 <- matrix(age, nrow = 2, ncol = 5) #create a matrix of dimension 2x5
+mat3 = cbind(wt,age,sex,income) #combine vectors by columns. Exercise: Type the code: rbind(wt,age,sex,income) and explain the outcome!
+mylist <- list(wt,age,sex,income)   #create a list of 4 vectors
+```
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="0"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+dim(mydata) # dimension
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+dim(mat1)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="2"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+dim(mat3)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="3"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+length(mylist)  
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="4"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+class(wt) 
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="5"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+class(sex)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="6"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+class(s)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="7"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+class(mydata)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="8"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+class(mat1)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="9"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+class(mylist)
+```
+:::
+:::
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+income[1:4] #first 4 elements of income 
+```
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="0"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+wt[-2] #all weights without 2nd one 
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mylist[1] #elements of the 1st list 
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="2"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mylist[[1]][2] #2nd element of the 1st list
+```
+:::
+:::
+:::
+
+::: {.column width="55%"}
+::: {.fragment data-fragment-index="3"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mydata$income #values of the income variable
+```
+:::
+:::
+:::
+
+::: {.column width="45%"}
+::: {.fragment data-fragment-index="4"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mydata[2,] #values of the 2nd row
+```
+:::
+:::
+:::
+
+::: {.column width="55%"}
+::: {.fragment data-fragment-index="5"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mydata[, 4] #values of the 4th column
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="7"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Extract a subset data
+# rows 1,2,3,5,7 and columns id, weight, sex
+mydata[c(1:3,5,7),c("id","weight","sex")] 
+```
+:::
+:::
+:::
+
+::: {.column width="45%"}
+::: {.fragment data-fragment-index="6"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#value in 3rd row and 2nd column
+mydata[3, 2] 
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="8"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Merging datasets
+merge(my_newdata,mydata, by = "id")
+```
+:::
+:::
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mean(mydata$weight) #mean weight
+```
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="0"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#standard deviation of weight variable
+sd(mydata[,"weight"]) 
+```
+:::
+:::
+:::
+
+::: {.column width="60%"}
+::: {.fragment data-fragment-index="1"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#Pearson correlation coefficient between weight and age
+cor(mydata[,2],mydata[,"age"]) 
+```
+:::
+:::
+:::
+
+::: {.column width="40%"}
+::: {.fragment data-fragment-index="2"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#transpose the matrix
+t(mat1)
+```
+:::
+:::
+:::
+
+::: {.column width="60%"}
+::: {.fragment data-fragment-index="3"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+summary(mydata)
+```
+:::
+:::
+:::
+
+::: {.column width="40%"}
+::: {.fragment data-fragment-index="4"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# cross-product of two matrices
+# try: crossprod(mat2,t(mat1))
+mat1 %*% mat2 
+```
+:::
+:::
+:::
+
+::: {.column width="43%"}
+::: {.fragment data-fragment-index="5"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+mat.prod <- mat2 %*% mat1
+solve(mat.prod) #inverse matrix
+```
+:::
+:::
+:::
+
+::: {.column width="57%"}
+::: {.fragment data-fragment-index="6"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#generate 5 random values from uniform(-1,2) 
+set.seed(123) #to reproduce the results
+runif(5, min = -1, max = 2)
+```
+:::
+:::
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {data-fragment-index="0"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Creating new variables
+mydata$status0 <- paste0("grade",1:8)
+mydata
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Creating new variables
+mydata$status1 <- paste("grade",1:8)
+mydata
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="2"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Recoding variables: recode age 20 by a missing value
+mydata$age[mydata$age == 20] <- NA 
+mydata[1:4,] #display the first 4 rows
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="5"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#calculate the mean including missing values
+sum(mydata$age)
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="6"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+#calculate the mean excluding missing values
+sum(mydata$age, na.rm=TRUE)
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="3"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Renaming variables
+names(mydata)[4] <- "height"
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="4"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Dropping variables
+mydata[,-c(4,9)] #Dropping the variables "height" and "status1"
+```
+:::
+:::
+
+::: {.fragment .nobullet data-fragment-index="7"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+# Removing all rows with missing data
+newdata <- na.omit(mydata)
+```
+:::
+:::
+:::
+:::
+
+## 
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r fig.asp = 0.45, fig.width = 12, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+par(mfrow = c(2, 2)) #create a 2 x 2 plotting matrix
+plot(wt,age); plot(mydata$weight, mydata$age) #type ?plot to get help about the function plot()
+plot(wt,age, xlab = "Weight", ylab = "Age", col = "red")
+plot(density(rnorm(500)),col="blue") #plot a density distribution of 500 random data from Gaussian
+```
+:::
+
+```{r, prompt=FALSE, eval=F, warning=FALSE, message=FALSE, echo=F}
+par(mfrow = c(1, 1)) 
+```
+
+## 
+
+### Reading data into [**R**]{.gray}
+
+After setting up [**R**]{.gray} environment with <b class="gray">Rstudio</b>, you can import the data from different structures.
+
+-   The build in [**R**]{.gray} package [**utils**]{.gray} has several functions for reading files from delimited [ASCII]{.blue} ([.txt, .csv]{.brown}) files.
+    -   [read.table()]{.green1}: Import data with extension [.txt]{.brown}.\
+    -   [read.csv()]{.green1}: Import data where [","]{.brown} are used as separators and ["."]{.brown} are used as decimals.
+    -   [read.csv2()]{.green1}: Import data where [";"]{.brown} are used as separators and [","]{.brown} are used as decimals.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```         
+> read.table
+  function (file, header = FALSE, sep = "", quote = "\"'", dec = ".", numerals = c("allow.loss", "warn.loss", "no.loss"), row.names, col.names, as.is = !stringsAsFactors, tryLogical = TRUE, na.strings = "NA", colClasses = NA, nrows = -1, skip = 0, check.names = TRUE, fill = !blank.lines.skip, strip.white = FALSE, blank.lines.skip = TRUE, comment.char = "#", allowEscapes = FALSE, flush = FALSE, stringsAsFactors = FALSE, fileEncoding = "", encoding = "unknown", text, skipNul = FALSE) 
+```
+:::
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```         
+> read.csv
+  function (file, header = TRUE, sep = ",", quote = "\"", dec = ".", fill = TRUE, comment.char = "", ...) 
+```
+:::
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```         
+> read.csv2
+  function (file, header = TRUE, sep = ";", quote = "\"", dec = ",", fill = TRUE, comment.char = "", ...) 
+```
+:::
+
+## 
+
+### Reading data into [**R**]{.gray}: Example
+
+Bitcoin daily price (in US dollars) from January 22, 2020 to September 1, 2021 (during COVID-19).
+
+::: columns
+::: {.column width="52%"}
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+# change the working directory to a different location on your computer
+dat1 <- read.table("data/BTC.txt",header = T, fill=TRUE) 
+dat2 <- read.csv("data/BTC.csv", header = TRUE)
+str(dat1)
+```
+:::
+:::
+
+::: {.column width="48%"}
+Use [skim()]{.green1} function from [**skimr**]{.gray} package to get a useful summary statistics.
+
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE, eval=F}
+#first, make sure you that have the package "readr" installed on you computer,
+#if not installed, you need to install it
+install.packages("skimr") 
+library("skimr") 
+skim(dat1)
+```
+:::
+:::
+
+::: {.column width="65%"}
+::: {.infobox3 .knit data-latex="{knit}"}
+![](images/skim-out.png){height="240px" width="100%"}</br>
+:::
+:::
+
+::: {.column width="35%"}
+[**Exercise**]{.gray}:
+
+::: {data-fragment-index="0"}
+-   Explain the arguments [row.names, col.names, stringsAsFactors]{.pink} in the function [read.table()]{.green1}.
+-   Give examples to demonstrate how we can use these functions.
+:::
+:::
+:::
+
+## 
+
+### Reading data into [**R**]{.gray}
+
+The <b class="gray">readr</b> package provides functions to read rectangular data with extension [.csv]{.brown}, [.txt]{.brown} or [.tsv]{.brown}.
+
+-   [read_csv()]{.green1} and [read_tsv()]{.green1} are special cases of the more general [read_delim()]{.green1}.
+-   To see all the arguments for the function [read_csv()]{.green1}, use [?read_csv()]{.green1} within [**R**]{.gray}.
+-   By default, [read_csv()]{.green1} and [read_tsv()]{.green1} convert blank cells to missing data (NA).
+-   You can type the following command to install and load this package.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+#first, make sure you that have the package "readr" installed on you computer,
+#if not installed, you need to install it
+install.packages("readr")
+library(readr) # Load the package
+```
+:::
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+# Read from a path specifies the location of a data on your computer
+name_data <- read_csv("file_data - Sheet1.csv") # import data from a comma delimited file
+# Read from a remote path (e.g., mtcars data set from GitHub website)
+name_data <- read_csv("https://github.com/tidyverse/readr/raw/main/inst/extdata/mtcars.csv") 
+name_data <- read_tsv("file_data.txt") # import data from a tab delimited file separated by tabs
+name_data <- read_tsv("file_data.tsv", sheet=1) # import data from a tab delimited file
+```
+:::
+
+## 
+
+### Reading data into [**R**]{.gray}
+
+The <b class="gray">readxl</b> package can import tabular data from Excel workbooks. Both [xls]{.green1} and [xlsx]{.green1} formats are supported.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+#first, make sure you that have the package "readxl" installed on you computer,
+#if not installed, you need to install it
+install.packages("readxl") 
+library(readxl) # Load the package
+name_data <- read_excel("file_data.xlsx", sheet=1) # import data from an Excel workbook
+```
+:::
+
+::: fragment
+The <b class="gray">haven</b> package can import data with [.sav]{.green1}, [.dat]{.green1}, and [.sas7bdat]{.green1} extensions.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+#first, make sure you that have the package "haven" installed on you computer,
+#if not installed, you need to install it
+install.packages("haven") 
+library(haven) # Load the package
+name_data <- read_sav("file_data.sav")      # import data from SPSS
+name_data <- read_dat("file_data.dat")      # import data from Stata
+name_data <- read_sas("file_data.sas7bdat") # import data from SAS 
+```
+:::
+:::
+
+## 
+
+### Example (reading data into [**R**]{.gray}):
+
+::: columns
+::: {.column width="50%"}
+Import the [**BTC**]{.pink} data set using the functions [read_tsv()]{.green1} and [read_csv()]{.green1} from the package [**readr**]{.gray}.
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+library(readr)
+dat3 <- read_tsv("data/BTC.txt") 
+dat4 <- read_csv("data/BTC.csv")
+head(dat3) #same results using head(dat4)
+```
+:::
+
+<sub>Note that the [head()]{.green1} prints differently from before because it's a tibble. [Tibbles]{.gray} are rectangular data frames, but slightly tweaked to work better in the [**tidyverse**]{.gray} package that we will discuss later!</sub>
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+The excel sheet [BTC2]{.gray} has two sheets named [BTC]{.pink} and [BTC2]{.pink}. The data [**BTC2**]{.pink} is stored in columns G7:G38-K7:38. The first cell A1 provides a quick description of this data. Data has some missing values.
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+library(readxl)
+dat5 <- read_excel("data/BTC2.xlsx", 
+                   sheet= "BTC2",
+                   rang = "G7:K38")
+head(dat5)
+```
+:::
+:::
+:::
+:::
+
+## Tibbles for tidy data frames
+
+Many popular packages, such as [**readr**]{.gray}, [**tidyr**]{.gray}, [**dplyr**]{.gray}, and [**purr**]{.gray}, save data frames as [tibbles]{.orange}. When you are using the package [**tibble**]{.gray} to import data be aware of the following properties:
+
+::: columns
+::: {.column width="55%"}
+::: {data-fragment-index="0"}
+-   Data frames can be converted to tibbles using the function [as_tibble()]{.green1}.
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+library(tibble)
+class(mtcars) #the class of mtcars data before tibble 
+mtcars <- as_tibble(mtcars) 
+class(mtcars) #the class of mtcars data after tibble
+```
+:::
+
+::: {data-fragment-index="0"}
+-   [tibbles]{.orange} never change the names of variables.
+-   [tibbles]{.orange} never convert character variables to factors.
+-   [tibbles]{.orange} don't support row names.
+:::
+:::
+
+::: {.column width="45%"}
+::: {data-fragment-index="0"}
+-   Subsetting a tibble always returns a tibble and not a vector.
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+mtcars[, "mpg"] 
+```
+:::
+
+[**Exercise**]{.gray}: Try the code: `mtcars[, "mpg", drop = TRUE]`
+:::
+:::
+
+## Basic [**dplyr**]{.gray} functions to manipulate data frames
+
+| Function              | Use                                        | Syntax                                                                                  |
+|:-----------------|:------------------|:----------------------------------|
+| [mutate()]{.green1}   | <sub>Transform or recode variables</sub>   | <sub>`dataframe <- mutate(dataframe, new_varibles = expression)`</sub>                  |
+| [select()]{.green1}   | <sub>Select variables/columns </sub>       | <sub>`dataframe <- select(dataframe, select_variables)` </sub>                          |
+| [filter()]{.green1}   | <sub>Select observations/rows </sub>       | <sub>`dataframe <- filter(dataframe, expression)` </sub>                                |
+| [rename()]{.green1}   | <sub>Rename variables/columns </sub>       | <sub>`dataframe <- rename(dataframe, new_varaibles_names = old_varaibles_names)` </sub> |
+| [recode()]{.green1}   | <sub>Recode variable values </sub>         | <sub>`variable <- recode(variable, old_values = new_values)` </sub>                     |
+| [arrange()]{.green1}  | <sub>Order rows by variable values </sub>  | <sub>`dataframe <- arrange(dataframe, sort_varaibles)` </sub>                           |
+| [group_by()]{.green1} | <sub>Group by one or more variables </sub> | <sub>`dataframe <- group_by(varaibles to group by)` </sub>                              |
+|                       |                                            |                                                                                         |
+
+## 
+
+#### Examples:
+
+::: {.nobullet data-fragment-index="0"}
+-   <sub>In financial time series, returns are given by $r_t =\log\dfrac{P_t}{P_{t-1}}$, where $r_t$ and $P_t$ denote the returns and price asset at time $t$.</sub>
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+dat5 <- mutate(dat5,BeforeClose=dplyr::lag(Price), returns=log(Price)-log(BeforeClose)) #use the BTC2 dataset
+dat5[1:2,]
+```
+:::
+:::
+
+::: {.fragment .nobullet data-fragment-index="1"}
+-   <sub>Use the pipe operator [(%\>%)]{.green1} to chain statements.</sub>
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+dat5 <- dat5 %>% 
+  mutate(Date = lubridate::mdy(Date), #parse dates with month, day, and year components using the function mdy() from the "lubridate" package
+         BeforeClose=dplyr::lag(Price),
+         returns=log(Price)-log(BeforeClose))
+dat5[1:2,] #note that the first returns is missing "NA". To remove "NA", use the code: %>% tidyr::drop_na() 
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {data-fragment-index="0"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+# Select the variables id, weight, sex, and income
+mydata %>% select(id,weight,sex,income) 
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment data-fragment-index="1"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+# A minus sign (-) is used to exclude variables
+mydata %>% select(-height, -Sex,-status1) 
+```
+:::
+:::
+:::
+
+::: {.column width="55%"}
+::: {.fragment data-fragment-index="2"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+# Select all females with age 19 or weight greater than 59
+mydata %>% filter(sex == "Female" &
+                    age == 19 | weight > 59) 
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="4"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+mydata$Sex <- recode(mydata$Sex,
+       "Male" = "M", "Female" = "F")
+mydata[c(1,5),1:6]
+```
+:::
+:::
+:::
+
+::: {.column width="45%"}
+::: {.fragment data-fragment-index="3"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+mydata <- mydata %>% 
+  rename(gender = "sex")
+mydata[1:3,1:5]
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="5"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+mydata <- mydata %>% arrange(age, weight)
+mydata[c(1:5),c("id","age","weight","gender","income")]
+```
+:::
+:::
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="48%"}
+::: {.nobullet data-fragment-index="0"}
+-   <sub>Calculate the average mean for each income category</sub>
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+mydata %>% group_by(income) %>%
+  summarize(avg_age = mean(age))
+```
+:::
+
+<sub>Note that the first age is missing [("NA")]{.green1}. This value is associated with low income. Thus, the average age for those who have low income is missing [("NA")]{.green1}.</sub></br>
+
+<sub>[**Exercise**]{.gray}: How do you solve this issue?</sub>
+:::
+:::
+
+::: {.column width="52%"}
+::: {.fragment .nobullet data-fragment-index="1"}
+-   Use the [%\>%]{.green1} operator to chain multiple statements
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE}
+mutate_data <- mydata %>% 
+  select(id, age, height, weight,gender,income,status0) %>%
+  mutate(height_foot = 0.033 * height) %>% 
+  rename(status = status0) %>%
+  filter(income == c("Low","Middle")) %>%
+  arrange(age, income) # "income" is an ordinal variable
+mutate_data
+```
+:::
+:::
+:::
+:::
+
+::: {.fragment data-fragment-index="2"}
+<sub>[**Exercise**]{.gray}:</sub>
+
+-   <sub>Use the functions [group_by()]{.green1} to group data by [status]{.pink} and calculate the five numbers ([min, max, median, first and third quartiles]{.green1}) of each status.</sub>
+-   <sub>Group data by [status]{.pink} and [income]{.pink} and calculate the mean and standard deviation of each group based on their age.</sub>
+:::
+
+## 
+
+#### Probability functions in [**R**]{.gray}
+
+::: {.nobullet .small data-fragment-index="0"}
+-   In many scenarios we use probability functions to generate a simulated data.
+-   In [**R**]{.gray}, probability functions take the form `[dpqr] abbreviation name of  distribution`, where each letter of `[dpqr]` refers to the aspect of the distribution returned:
+    -   `d` = Density
+    -   `p` = Distribution function
+    -   `q` = Quantile function
+    -   `r` = Random generation
+:::
+
+::: small
+| Distribution         | Syntax                |     | Distribution      | Syntax              |     | Distribution   | Syntax                |     |
+|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|
+| Beta                 | [beta()]{.green1}     |     | Binomial          | [binom()]{.green1}  |     | Cauchy         | [cauchy()]{.green1}   |     |
+| Chi-squared          | [chisq()]{.green1}    |     | Exponential       | [exp()]{.green1}    |     | F              | [f()]{.green1}        |     |
+| Gamma                | [gamma()]{.green1}    |     | Geometric         | [geom()]{.green1}   |     | Hypergeometric | [hyper()]{.green1}    |     |
+| Lognormal            | [lnorm()]{.green1}    |     | Logistic          | [logis()]{.green1}  |     | Multinomial    | [multinom()]{.green1} |     |
+| Negative binomial    | [nbinom()]{.green1}   |     | Normal            | [norm()]{.green1}   |     | Poisson        | [pois()]{.green1}     |     |
+| Wilcoxon signed rank | [signrank()]{.green1} |     | T                 | [t()]{.green1}      |     | Uniform        | [unif()]{.green1}     |     |
+| Weibull              | [weibull()]{.green1}  |     | Wilcoxon rank sum | [wilcox()]{.green1} |     |                |                       |     |
+|                      |                       |     |                   |                     |     |                |                       |     |
+:::
+
+## 
+
+#### Example:
+
+::: {.center data-fragment-index="0"}
+```{r, prompt=FALSE, warning=FALSE, message=FALSE, echo=F}
+library(ggplot2)
+x <- seq(from = -4, to = 4, by = 0.1)
+y <- dnorm(x)
+data <- data.frame(x = x, y=y)
+ggplot(data, aes(x, y)) + 
+  geom_line() + theme_classic() + 
+  labs(x = "Normal Deviate", y = "Density") + 
+  scale_x_continuous(breaks = seq(-4, 4, 1))
+```
+:::
+
+::: {.small .nobullet data-fragment-index="0"}
+-   **Q1**: What is the area under the standard normal curve to the left of `z = 2.1`?
+    -   *Answer*: Use the command `pnorm(2.1)` to get `0.9821356`.
+-   **Q2**: What is the value of the 95th percentile of a normal distribution with a mean of 100 and a standard deviation of 20?
+    -   *Answer*: Use the command `qnorm(0.95, mean =100, sd = 20)` to get `132.8971`
+-   **Q3**: Generate 300 random normal deviates with a mean of 80 and a standard deviation of 10.
+    -   *Answer*: Use the command `rnorm(300, mean =80, sd = 10)` to get the simulated series.\
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+### Tidyverse workflow
+
+![](images/tidyverse-flow.png){height="500px"}</br> [**Source**]{.gray}: <a href="https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/" target="_blank">https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/</a>. </br>
+:::
+
+::: {.column width="50%"}
+### [**Rstudio**]{.gray} cheat sheets
+
+The <a href="https://posit.co/resources/cheatsheets/" target="_blank">Posit Cheatsheets</a> website suggests some favorite data science packages to use!</br>
+
+::: {.infobox6 .center}
+![](images/posit.png){height="385px"}</br>
+:::
+:::
+:::
+
+## Visualizing data in the tidyverse
+
+::: columns
+::: {.column width="70%"}
+::: nobullet
+-   <b class="gray">tidyverse</b> package is a set of essential data science packages.
+-   More information about this package can be found from the free website **Johns Hopkins Data Science Lab (DaSL)**: <a href="https://jhudatascience.org/tidyversecourse/intro.html" target="_blank">https://jhudatascience.org/tidyversecourse/intro.html</a>. </br>
+:::
+:::
+
+::: {.column width="30%"}
+<center>![](images/tidyverse.png){width="40%"}</center>
+:::
+:::
+
+::: {.fragment .nobullet}
+-   You may install and load the <b class="gray">tidyverse</b> by running the following code:
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```         
+> install.packages("tidyverse")
+> library(tidyverse)
+── Attaching core tidyverse packages ─────────────────────────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.2     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.1     
+── Conflicts ───────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package to force all conflicts to become errors
+Warning messages:
+1: package ‘tidyverse’ was built under R version 4.3.1 
+2: package ‘readr’ was built under R version 4.3.1 
+```
+:::
+:::
+
+## A graphing template
+
+::: {data-fragment-index="0"}
+-   The <b class="gray">ggplot2</b> implements the *grammar of graphics* is a core package in the <b class="gray">tidyverse</b> that can be used to visualize data in an elegant way.
+-   To get started plotting in <b class="gray">ggplot2</b>, you will start with the two basics (data and a geom) and then add additional layers using the <b class="gray">+</b> sign.
+:::
+
+::: {data-fragment-index="0"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, eval=FALSE}
+library(tidyverse) # or type library(ggplot2) to load the package ggplot2 only
+ggplot(data = DATAFRAME, mapping = aes(Options)) + 
+  geom_TYPE()
+#
+# You may place the mapping within the aes function, where aes stands for aesthetics.
+ggplot(data = DATAFRAME) + 
+  geom_TYPE(mapping = aes(Options))
+```
+:::
+:::
+
+::: {data-fragment-index="0"}
+-   Each [geom\_]{.green1} function takes a [mapping]{.green1} argument which paired with [aes()]{.green1}.
+-   The [x]{.green1} and [y]{.green1} arguments of [aes()]{.green1} specify which variables options to map to the x and y coordinates.
+-   You can add a third variable, like [z]{.green1} and map it to an *aesthetic* like the [size]{.green1}, [shape]{.green1}, or [color/colour]{.green1} of the points of your plot.
+:::
+
+## Geom functions
+
+::: infobox2
+| Function                    | Layers           | Options                                      |
+|:-------------------|:-------------------|:-------------------------------|
+| [geom_point()]{.green1}     | Scatterplot      | color, alpha, shape, size                    |
+| [geom_line()]{.green1}      | Line graph       | colorvalpha, linetype, size                  |
+| [geom_jitter()]{.green1}    | Jittered points  | color, size, alpha, shape                    |
+| [geom_bar()]{.green1}       | Bar chart        | color, fill, alpha                           |
+| [geom_boxplot()]{.green1}   | Box plot         | color, fill, alpha, notch, width             |
+| [geom_histogram()]{.green1} | Histogram        | color, fill, alpha, linetype, binwidth       |
+| [geom_smooth()]{.green1}    | Fitted line      | method, formula, color, fill, linetype, size |
+| [geom_density()]{.green1}   | Density plot     | color, fill, alpha, linetype                 |
+| [geom_hline()]{.green1}     | Horizontal lines | color, alpha, linetype, size                 |
+| [geom_vline()]{.green1}     | Vertical lines   | color, alpha, linetype, size                 |
+| [geom_rug()]{.green1}       | Rug plot         | color, side                                  |
+| [geom_violin()]{.green1}    | Violin plot      | color, fill, alpha, linetype                 |
+| [geom_text()]{.green1}      | Text annotations | see the help for this function               |
+|                             |                  |                                              |
+:::
+
+## 
+
+![](images/geoms.png){width="100%"} </b> [**Source**]{.gray}: <a href="https://nbisweden.github.io/RaukR-2019/ggplot/presentation/ggplot_presentation.html#1" target="_blank">https://nbisweden.github.io/RaukR-2019/ggplot/presentation/ggplot_presentation.html#1</a>. </br> See also <a href="https://clauswilke.com/dataviz/directory-of-visualizations.html" target="_blank">https://clauswilke.com/dataviz/directory-of-visualizations.html</a>
+
+## A worked example
+
+Let's use our first graph to answer the following questions about the <b class="pink">mpg</b> data frame available from the package <b class="gray">ggplot2</b>:
+
+::: {.fragment data-fragment-index="0"}
+-   Do cars with big engines use more fuel than cars with small engines?
+-   What does the relationship between engine size and fuel efficiency look like?
+    -   Is it positive or negative?
+    -   Is it Linear or nonlinear?
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)
+```
+:::
+
+::: {.fragment data-fragment-index="1"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, warning=FALSE, message=FALSE, echo=TRUE}
+head(mpg) # Returns the first 6 rows
+```
+:::
+:::
+
+## Creating a ggplot - static plots
+
+::: columns
+::: {.column width="60%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.5, fig.width = 12,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Creates a coordinate system that you can add layers to 
+ggplot(data = mpg) 
+```
+:::
+
+The first argument is the dataset that you need to use in the plot. The result of this code is an empty graph (default theme used by [**ggplot2**]{.gray} is [theme_gray()]{.green1}).
+:::
+
+::: {.column width="40%"}
+```{r fig.asp = 0.5, fig.width = 12, warning=FALSE, message=FALSE, echo=F}
+# Creates a coordinate system that you can add layers to 
+ggplot(data = mpg) 
+```
+:::
+
+::: {.column .fragment data-fragment-index="1" width="60%"}
+Now you can add one or more layers to [ggplot()]{.green1}. The function [geom_point()]{.green1} adds a layer of points (scatterplot) to your plot.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.7, fig.width = 12, eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Put displ on the x-axis and hwy on the y-axis 
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy)) 
+```
+:::
+
+[The plot shows a negative relationship between the car engine size (in liters) and the car's fuel efficiency on the highway (in miles per gallon). The bigger the size of the engine, the less efficient it is in consuming fuel.]{.small}
+:::
+
+::: {.column .fragment data-fragment-index="1" width="40%"}
+```{r fig.asp = 0.7, fig.width = 12, warning=FALSE, message=FALSE, echo=F}
+# Put displ on the x-axis and hwy on the y-axis 
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy)) 
+```
+:::
+:::
+
+## 
+
+### Aesthetic mappings
+
+<sub>The [aes()]{.green1} (stands for aesthetics) function is used to map variables to the visual characteristics of a plot.</sub>
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="200%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Map the colors of points to the variable "class", which indicates the class of each car
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, color = class)) 
+```
+:::
+
+::: {.columns .fragment data-fragment-index="0"}
+::: {.column width="70%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, color = class)) 
+```
+:::
+
+::: {.column .fragment width="30%" data-fragment-index="0"}
+-   The graph indicates that there are some unusual points (<b class="gray">outliers</b>). The colors reveal that many of these points are two-seater cars.
+-   Map an aesthetic to a third variable will create a [legend]{.green1} that explains which levels correspond to which values.
+:::
+:::
+
+## 
+
+### Aesthetic mappings
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Map the size of points to the variable "class"
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, size = class)) 
+```
+:::
+
+::: {.columns .fragment data-fragment-index="0"}
+::: {.column width="70%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, size = class)) 
+```
+:::
+
+::: {.column width="30%"}
+Mapping [class]{.orange} to the [size]{.green1} aesthetic display more clear information about the (<b class="gray">outliers</b>) in this data.
+:::
+:::
+
+## 
+
+### Aesthetic mappings
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Map the variable "class" to the alpha aesthetic
+# alpha controls the transparency of the points or the shape of the points. 
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, alpha = class)) 
+```
+:::
+
+::: {.columns .fragment data-fragment-index="0"}
+::: {.column width="70%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, alpha = class)) 
+```
+:::
+
+::: {.column width="30%"}
+The visualization of the plot is not clear. We can fine tune the appearance of the graph using [themes]{.green1} and improved visualization.
+:::
+:::
+
+## 
+
+### Aesthetic mappings
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Map the variable "class" to the shape, color, and size aesthetics and use the classic theme
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, shape = class, colour = class, size = class)) +
+  theme_classic() 
+```
+:::
+
+::: {.columns .fragment data-fragment-index="0"}
+::: {.column width="70%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy, shape = class, colour = class, size = class)) +
+  theme_classic()
+```
+:::
+
+::: {.column width="30%"}
+::: {.fragment data-fragment-index="0"}
+-   <sub><b class="gray">ggplot2</b> uses only six shapes at a time. Thus, the [suv]{.orange} go unplotted when you use the aesthetic shape.</sub>
+-   <sub>Both British and American English words of [colour]{.green1} and [color]{.green1} work.</sub>
+-   <sub>[**Exercise**]{.gray}: Is it possible to replace the argument (e.g., [color]{.green1}) in [**R**]{.gray} by an abbreviations word using the first character strings of this argument (e.g., [col]{.green1})?</sub>\
+:::
+:::
+:::
+
+## Set the aesthetic properties of the geom manually
+
+::: columns
+::: {.column width="60%"}
+Here, I will use the theme [theme_bw()]{.green1} (for black and white).
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.6, fig.width = 12, eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) +
+ geom_point(mapping=aes(x=displ, 
+                        y=hwy,color="blue")) +
+  theme_bw() 
+```
+:::
+
+[**Exercise**]{.gray}: Why are the points not blue?
+:::
+
+::: {.column .center width="40%"}
+```{r fig.asp = 0.6, fig.width = 12, warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+ geom_point(mapping=aes(x=displ, 
+                        y=hwy,color="blue")) +
+  theme_bw()
+```
+:::
+
+::: {.column .fragment data-fragment-index="1" width="60%"}
+Note: Instead of using the character name of the color ["blue"]{.blue}, you can use the ["#0000FF"]{.blue} [hex code]{.pink} of this color.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.6, fig.width = 12, eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) +
+ geom_point(mapping=aes(x=displ, 
+                        y=hwy),color="#0000FF") +
+  theme_bw()
+```
+:::
+
+[**Exercise**]{.gray}: The points are blue now! Why?
+:::
+
+::: {.column .fragment .center data-fragment-index="1" width="40%"}
+```{r fig.asp = 0.6, fig.width = 12, warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+ geom_point(mapping=aes(x=displ, 
+                        y=hwy),color="#0000FF") +
+  theme_bw()
+```
+:::
+:::
+
+## 
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(x=displ, hwy),size = 4)
+```
+:::
+
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(x=displ,y=hwy),size = 4)
+```
+
+## 
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,hwy,col=drv),size = 4) #a legend to the right will be created
+```
+:::
+
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,hwy,col=drv),size = 4) #a legend to the right will be created
+```
+
+## 
+
+##### Scales
+
+::: small
+Scale functions (which start with [scale\_]{.green1}) allow you to modify default scaling provided by [ggplot2]{.gray}
+
+| Function                        | Syntax                                                                                                                                                                                                                     |
+|:------------------|:----------------------------------------------------|
+| [scale_x_continuous()]{.green1} | Scales the x-axis for quantitative variables. Options include [breaks]{.pink} for specifying tick marks, [labels]{.pink} for specifying tick mark labels, and [limits]{.pink} to control the range of the values displayed |
+| [scale_y_continuous()]{.green1} | Same as above for y-axis                                                                                                                                                                                                   |
+| [scale_x_discrete()]{.green1}   | Same as above for x-axis representing categorical variable                                                                                                                                                                 |
+| [scale_y_discrete()]{.green1}   | Same as above for y-axis representing categorical variable                                                                                                                                                                 |
+| [scale_color_manual()]{.green1} | Specifies the colors (with option [values]{.pink}) used to represent the levels of a categorical variable                                                                                                                  |
+|                                 |                                                                                                                                                                                                                            |
+:::
+
+##### Facets
+
+::: small
+[facet_wrap()]{.green1} and [facet_grid()]{.green1} are used to partition a plot into a matrix of panels (side-by-side graphs), particularly useful for categorical variables.
+
+| Function                                | Syntax                                                                                     |
+|:------------------|:----------------------------------------------------|
+| [facet_wrap(\~var, nrow = r)]{.green1}  | Partition plots for each level of variable (var) arranged into r rows                      |
+| [facet_wrap(\~var, ncol = c)]{.green1}  | Partition plots for each level of variable (var) arranged into c columns                   |
+| [facet_grid(row_var\~col_var)]{.green1} | Partition plots for combination of rows variable (row_var) and columns variable (col_var)  |
+| [facet_grid(\~row_var)]{.green1}        | Partition plots for for each level of rows variable (row_var), arranged as a single column |
+| [facet_grid(\~col_var)]{.green1}        | Partition plots for for each level of columns variable (col_var), arranged as a single row |
+|                                         |                                                                                            |
+:::
+
+## 
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, fig.width = 12,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg, 
+       mapping = aes(x = displ, y = hwy,
+                     color = drv, shape=drv)) +
+  geom_point(alpha = .7, size = 3) +
+  scale_x_continuous(breaks = seq(1, 7, 0.5)) +
+  scale_y_continuous(breaks = seq(10, 45, 5)) +
+  scale_color_manual(values = c("darkgreen","cornflowerblue","indianred3")) +
+  theme_bw()
+```
+:::
+
+```{r, fig.width = 12,fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg, 
+       mapping = aes(x = displ, y = hwy,
+                     color = drv, shape=drv)) +
+  geom_point(alpha = .7, size = 3) +
+  scale_x_continuous(breaks = seq(1, 7, 0.5)) +
+  scale_y_continuous(breaks = seq(10, 45, 5)) +
+  scale_color_manual(values = c("darkgreen","cornflowerblue","indianred3")) +
+  theme_bw()
+```
+
+## Facets: Facet the plot by a single variable
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Map the variable "class" to the shape, color, and size aesthetics and use the classic theme
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy)) +
+     facet_wrap(~ class, nrow = 2) + theme_bw()
+```
+:::
+
+::: {.columns .fragment data-fragment-index="0"}
+::: {.column width="70%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy)) +
+     facet_wrap(~ class, nrow = 2) + theme_bw()
+```
+:::
+
+::: {.column width="30%"}
+::: {.fragment data-fragment-index="0"}
+-   To facet your plot by a single variable, use [facet_wrap( \~ name of this variable)]{.green1}.
+-   Note that the variable that you pass to [facet_wrap()]{.green1} should be discrete.
+-   [**Exercise**]{.gray}: What happens if you replace [facet_wrap(\~ class, nrow = 2)]{.brown} by [facet_grid(\~ class)]{.brown}?
+:::
+:::
+:::
+
+## 
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Bar graphs 
+ggplot(data=mpg,mapping=aes(x=hwy))+
+     geom_bar() + facet_grid(rows = vars(drv), margins = TRUE, scales = "free_y")
+```
+:::
+
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+# Bar graphs
+ggplot(data=mpg,mapping=aes(x=hwy))+
+     geom_bar() + facet_grid(rows = vars(drv), margins = TRUE, scales = "free_y")
+```
+
+<sub> Note: The default argument [scales = "fixed"]{.orange} is used if x and y scales are fixed across all panels; [scales = "free_x"]{.orange} if x scale is free and y scale is fixed; [scales = "free_y"]{.orange} if y scale is free and x scale is fixed; and [scales = "free"]{.orange} if x and y scales vary across panels.</sub>
+
+## Facets: Facet the plot on the combination of two variable
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Map the variable "class" to the shape, color, and size aesthetics and use the classic theme
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy)) +
+     facet_grid(drv ~ cyl) + theme_bw()
+```
+:::
+
+::: {.columns .fragment data-fragment-index="0"}
+::: {.column width="70%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) +
+    geom_point(mapping = aes(x = displ, y = hwy)) +
+     facet_grid(drv ~ cyl) + theme_bw()
+```
+:::
+
+::: {.column width="30%"}
+::: {.fragment data-fragment-index="0"}
+-   To facet your plot on the combination of two variable, use [facet_grid(name of 1st variable \~ name of 2nd variable)]{.green1}.
+-   Here, [4]{.gray} stands for four-wheel drive, [f]{.gray} for front-wheel drive, and [r]{.gray} for rear-wheel drive.
+:::
+:::
+:::
+
+## 
+
+#### Legend layout
+
+::: columns
+::: {.column width="60%"}
+::: {.small data-fragment-index="0"}
+-   <sub>To control the position of the legend, you need to use a [theme()]{.green1} setting.</sub>
+-   <sub>The theme setting [legend.position]{.pink} controls where the legend is drawn:</sub>
+    -   <sub>`+ theme(legend.position = "right")` \# the default</sub>
+    -   <sub>`+ theme(legend.position = "left")`</sub>
+    -   <sub>`+ theme(legend.position = "top")`</sub>
+    -   <sub>`+ theme(legend.position = "bottom")`</sub>
+-   <sub>You may include other options in the [theme()]{.green1} as seen below!</sub>
+:::
+
+::: {.infobox2 .knit data-latex="{knit}"}
+```{r fig.asp = 1.2, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+suv <- mpg %>% filter(class == "suv")
+p <- ggplot(suv, aes(displ, hwy, color = drv)) +
+  geom_point(size = 4) + theme_bw()
+
+p + labs(title = "Fuel economy data",
+       subtitle = "Suv cars",
+       x = "Engine displacement, in litres",
+       y = "Highway miles per gallon",
+       color = "Type of drive train") +
+  scale_color_manual(labels = c("4wd", "Rear wheel drive"), 
+                     values = c("blue", "red")) +
+  theme(legend.position="bottom", 
+        legend.key.size = unit(1.4, "cm"),
+        legend.key.height=unit(0.5, "cm"),
+        legend.key = element_rect(fill = "gray90", color = "red"),
+        text=element_text(family="serif")) 
+```
+:::
+:::
+
+::: {.column width="40%"}
+```{r fig.asp = 1.2, fig.width = 10,fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+suv <- mpg %>% filter(class == "suv")
+p <- ggplot(suv, aes(displ, hwy, color = drv)) +
+  geom_point(size = 4) + theme_bw()
+
+p + labs(title = "Fuel economy data",
+       subtitle = "Suv cars",
+       x = "Engine displacement, in litres",
+       y = "Highway miles per gallon",
+       color = "Type of drive train") +
+  scale_color_manual(labels = c("4wd", "Rear wheel drive"), 
+                     values = c("blue", "red")) +
+  theme(legend.position="bottom", 
+        legend.key.size = unit(1.4, "cm"),
+        legend.key.height=unit(0.5, "cm"),
+        legend.key = element_rect(fill = "gray90", color = "red"),
+        text=element_text(family="serif")) 
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+<sub> You can map the values of a non categorical variable to a different continuous scale using the `scale_color_gradient()` option</sub>
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple")
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple")
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {data-latex="{knit}"}
+-   You can change the overall theme.
+-   A list of themes and instructions can be found from:
+    -   <a href="https://r-charts.com/ggplot2/themes/" target="_blank">https://r-charts.com/ggplot2/themes/</a>
+    -   <a href="https://www.datanovia.com/en/blog/ggplot-themes-gallery/" target="_blank">https://www.datanovia.com/en/blog/ggplot-themes-gallery/</a>
+:::
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") + 
+  theme_minimal()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") + 
+  theme_minimal()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  theme_dark()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  theme_dark()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  theme_void()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  theme_void()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+You can also use the themes available from the package [**ggthemes**]{.gray}
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") + 
+  ggthemes::theme_fivethirtyeight()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  ggthemes::theme_fivethirtyeight()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") + 
+  ggthemes::theme_economist()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") + 
+  ggthemes::theme_economist()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  ggthemes::theme_excel_new()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  ggthemes::theme_excel_new()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+Or you can use the themes from the package [**hrbrthemes**]{.gray}
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  hrbrthemes::theme_ft_rc()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  hrbrthemes::theme_ft_rc()
+```
+:::
+:::
+
+## 
+
+::: columns
+::: {.column width="50%"}
+Or the package [**ggdark**]{.gray}
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  ggdark::dark_theme_classic()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  ggdark::dark_theme_classic()
+```
+:::
+:::
+
+## 
+
+```{r, echo=F}
+theme_bluewhite <- function (base_size = 11, base_family = "") {
+    theme_bw() %+replace% 
+    theme(
+      panel.grid.major  = element_line(color = "white"),
+      panel.background = element_rect(fill = "lightblue"),
+      panel.border = element_rect(color = "lightblue", fill = NA),
+      axis.line = element_line(color = "lightblue"),
+      axis.ticks = element_line(color = "lightblue"),
+      axis.text = element_text(color = "steelblue")
+      )
+}
+```
+
+::: columns
+::: {.column width="50%"}
+Or even you can create your own theme. The source code of the following theme [theme_bluewhite()]{.green1} can be found from the link <a href="https://www.datanovia.com/en/blog/ggplot-themes-gallery/" target="_blank">https://www.datanovia.com/en/blog/ggplot-themes-gallery/</a>
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") + 
+  theme_bluewhite()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 10,fig.align="center", warning=FALSE, message=FALSE, echo=F}
+ggplot(data = mpg) + 
+  geom_point(aes(displ,
+                 hwy,
+                 col=year),
+             size = 4) + 
+  scale_color_gradient(low = "green", 
+                       high = "purple") +
+  theme_bluewhite()
+```
+:::
+:::
+
+## 
+
+### Boxplots
+
+<sub>Helps visualize whether a distribution of a data set is symmetric or skewed due to unusual observations (outliers). The grapgh displays the five numbers summary ([minimum, maximum, median, first and third quartiles]{.pink}).</sub>
+
+::: columns
+::: {.column .fragment data-fragment-index="0" width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data=mpg,
+       mapping=aes(x=class,y=hwy))+
+  geom_boxplot() + 
+  theme_bw()
+```
+:::
+:::
+
+::: {.column .fragment data-fragment-index="1" width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+# Flip the coordinate systems (horizontal boxplots)
+ggplot(data=mpg,
+       mapping=aes(x=class,y=hwy))+
+  geom_boxplot() + 
+  theme_bw() + 
+  coord_flip()
+```
+:::
+:::
+
+::: {.column .fragment data-fragment-index="0" width="50%"}
+```{r, out.width="100%",fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+ggplot(data=mpg,
+       mapping=aes(x=class,y=hwy))+
+  geom_boxplot() + 
+  theme_bw()
+```
+:::
+
+::: {.column .fragment data-fragment-index="1" width="50%"}
+```{r, out.width="100%",fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+# Flip the coordinate systems (horizontal boxplots)
+ggplot(data=mpg,
+       mapping=aes(x=class,y=hwy))+
+  geom_boxplot() + 
+  theme_bw() + 
+  coord_flip()
+```
+:::
+:::
+
+## 
+
+### Boxplots
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.7, fig.width = 8,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data=mpg,
+    mapping=aes(x=drv,y=hwy,color=class))+
+  geom_boxplot(size=1) + 
+  theme_bw()
+```
+:::
+:::
+
+::: {.column .fragment data-fragment-index="0" width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.7, fig.width = 8,fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+ggplot(data=mpg,
+    mapping=aes(x=class,y=hwy,fill=drv))+
+  geom_boxplot(size=1) + 
+  theme_bw()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.7, fig.width = 8,fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+ggplot(data=mpg,
+       mapping=aes(x=drv,y=hwy,color=class))+
+  geom_boxplot(size=1) + 
+  theme_bw()
+```
+:::
+
+::: {.column .fragment data-fragment-index="0" width="50%"}
+```{r fig.asp = 0.7, fig.width = 8,fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+ggplot(data=mpg,
+       mapping=aes(x=class,y=hwy,fill=drv))+
+  geom_boxplot(size=1) + 
+  theme_bw()
+```
+:::
+:::
+
+## 
+
+#### Line chart (time series) and Histogram
+
+::: columns
+::: {.column width="54%"}
+::: {.small data-fragment-index="0"}
+-   Use the function [tq_get()]{.green1} available from the package [**tidyquant**]{.gray} to get stock price data (say [Apple]{.pink}} from several web sources.
+-   Define the returns as a time series data and plot this series using [line chart]{.pink}.\
+-   Plot the distribution using [histogram]{.pink} and annotate the plots.
+-   Use the function [grid.arrange()]{.green1} available from the package [**gridExtra**]{.gray} to place the two plots on one page.
+-   Use the option [annotate()]{.green1} in [**ggplot2**]{.gray} to add a text label to your plot.
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=T}
+# Load "tidyquant" and "tidyverse" packages 
+library(tidyquant)
+library(tidyverse)
+
+# Get daily stock prices of Apple from the web in a tibble format
+Apple <- tq_get("AAPL",from="2010-01-04",
+                to="2018-12-31",get="stock.prices")
+
+# mutate returns series named as "ret"
+Ap <- Apple %>% 
+  mutate(Date = ymd(date), 
+         Beforeclose = dplyr::lag(close),
+         ret = log(close) - log(Beforeclose)) %>%
+  drop_na(ret) #remove "NA"
+```
+:::
+:::
+
+::: {.column width="46%"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=T}
+# Plot log-returns series
+P1 <- ggplot(Ap)+
+  geom_line(aes(x=Date,y=ret),color="gray30")+
+  labs(y="Log Returns", x="") +
+  scale_x_date(date_labels="%Y %b", 
+               date_breaks="12 months") +
+  theme_bw()
+
+# Plot histogram
+P2 <- ggplot(Ap)+ 
+  geom_histogram(aes(ret),binwidth=0.004,
+                 col="gray30",fill="gray80")+
+  annotate("text",x=c(-0.1,-0.1),y=c(70,60),
+           label=c("Skewness:-0.1738",
+                   "Ex.kurtosis:3.5783"),
+           color=c("gray30","gray30"))+
+           labs(y="", x="Log Returns") +
+  theme_bw()
+
+# Load "gridExtra" package
+library(gridExtra)
+
+# Place the two plots on one page
+grid.arrange(P2, P1, nrow=1, 
+   top="Apple, Inc. stock price from 
+    January 04, 2010 to December 31, 2018")
+```
+:::
+:::
+:::
+
+## 
+
+```{r, out.width="100%",fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
+# Load "tidyquant" and "tidyverse" packages 
+library(tidyquant)
+library(tidyverse)
+# Get daily stock prices of Apple from the web in a tibble format
+Apple <- tq_get("AAPL",from="2010-01-04",to="2018-12-31",get="stock.prices")
+# mutate returns series named as "ret"
+Ap <- Apple %>% 
+  mutate(Date = ymd(date), 
+         Beforeclose = dplyr::lag(close),
+         ret = log(close) - log(Beforeclose)) %>%
+  drop_na(ret) #remove "NA"
+# Plot log-returns series
+P1 <- ggplot(Ap)+
+  geom_line(aes(x=Date,y=ret),color="gray30") +
+  labs(y="Log Returns", x="") +
+  scale_x_date(date_labels="%Y %b", date_breaks="12 months") +
+  theme_bw() 
+# Plot histogram
+P2 <- ggplot(Ap)+ 
+  geom_histogram(aes(ret),binwidth=0.004,col="gray30",fill="gray80")+
+  annotate("text",x=c(-0.1,-0.1),y=c(70,60),
+           label=c("Skewness:-0.1738","Ex.kurtosis:3.5783"),
+           color=c("gray30","gray30"))+
+           labs(y="", x="Log Returns") +
+  theme_bw()
+# Load "tidyquant" gridExtra
+library(gridExtra)
+# Place the two plots on one page
+grid.arrange(P2, P1, nrow=1, 
+             top="Apple, Inc. stock price from January 04, 2010 to December 31, 2018")
+```
+
+## 
+
+### Correlation matrix: [**ggcorrplot**]{.gray} package
+
+::: columns
+::: {.column width="40%"}
+::: {data-fragment-index="0"}
+-   <sub>The function [ggcorrplot()]{.green1} in the package [**ggcorrplot**]{.gray} can be used to visualize a correlation matrix using [**ggplot2**]{.gray}, which is inspired from the package [**corrplot**]{.gray}.</sub>
+-   Consider the motor trend car road tests data set, [**mtcars**]{.pink}. More information about the data can be found by typing `?mtcars`\
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r fig.asp = 0.75, fig.width = 8, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(ggcorrplot)
+corr <- round(cor(mtcars), 1)
+ggcorrplot(corr,
+           type = "lower",
+           lab = TRUE)
+```
+:::
+:::
+
+::: {.column width="60%"}
+```{r fig.asp = 0.75, fig.width = 8, fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(ggcorrplot)
+corr <- round(cor(mtcars), 1)
+ggcorrplot(corr,
+           type = "lower",
+           lab = TRUE)
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**plotly**]{.gray} package
+
+::: columns
+::: {.column width="50%"}
+::: {data-fragment-index="0"}
+-   <sub>The package [plotly](https://plot.ly/r/) provides [**R**]{.gray} binding around javascript plotting library [**plotly**](https://plot.ly).</sub>
+-   <sub>Consider the [**iris**]{.pink} data with 150 cases (rows) and 5 variables (columns) named [Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, and Species]{.orange}. </sub>
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r fig.asp = 0.75, fig.width = 6, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(plotly)
+iris %>% 
+  plot_ly(x=~Sepal.Length,
+          y=~Sepal.Width,
+          color=~Species,
+          size=1)%>% 
+  add_markers()
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 6, fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(plotly)
+iris %>% 
+  plot_ly(x=~Sepal.Length,
+          y=~Sepal.Width,
+          color=~Species,
+          size=1)%>% 
+  add_markers()
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**plotly**]{.gray} package
+
+::: columns
+::: {.column width="50%"}
+::: {data-fragment-index="0"}
+<sub>The function [ggplotly()]{.green1} from the package [**plotly**]{.gray} can be used to convert a static [**ggplot2**]{.gray} object into an interactive plot.</sub>
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r fig.asp = 0.75, fig.width = 6, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(plotly)
+p <- ggplot(iris,
+            aes(x=Sepal.Length,
+                y=Sepal.Width,
+                col=Species)) + 
+  geom_point(size = 3) + 
+  labs(x="Sepal Length", y="Sepal Width") + 
+  theme_bw()
+ggplotly(p)
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 6, fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(plotly)
+p <- ggplot(iris,
+            aes(x=Sepal.Length,
+                y=Sepal.Width,
+                col=Species)) + 
+  geom_point(size = 3) + 
+  labs(x="Sepal Length", y="Sepal Width") + 
+  theme_bw()
+ggplotly(p)
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**plotly**]{.gray} package
+
+::: columns
+::: {.column width="50%"}
+::: {data-fragment-index="0"}
+-   <sub>The package [**plotly**]{.gray} can also used to make a [contour/and surface]{.pink} plots.</sub>
+-   <sub>Consider the $87\times 61$ altitudes of a volcano, Maunga Whau (Mt Eden) in Auckland, stored in the datasets [**volcano**]{.pink}. More information about the data can be found by typing `?volcano`</sub>
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 6, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(plotly)
+plot_ly(z = ~volcano) %>% 
+  add_contour(type="contour", 
+    contours=list(showlabels=TRUE))
+```
+:::
+
+::: {.infobox2 .knit data-latex="{knit}"}
+To plot the surface, use the following command: </br> `plot_ly(z=~volcano) %>%` `add_surface()`
+:::
+:::
+
+::: {.column width="50%"}
+```{r fig.asp = 0.9, fig.width = 6.7, fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(plotly)
+plot_ly(z = ~volcano) %>% 
+  add_contour(type="contour", 
+    contours=list(showlabels=TRUE))
+```
+:::
+:::
+
+## 
+
+### Interactive plots for matrix plot: [**plotly**]{.gray} and [**GGally**]{.gray} packages
+
+::: columns
+::: {.column width="40%"}
+::: {data-fragment-index="0"}
+-   <sub>The [ggpairs()]{.green1} function of the [**GGally**]{.gray} package allows to build a matrix of pairs plot (scatterplot, box-plot, histogram, density, and correlation).</sub>
+-   <sub> The [ggplotly()]{.green1} function of the package [**plotly**]{.gray} allows to get an interactive plot.</sub>
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r fig.asp = 0.8, fig.width = 6.5, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(GGally)
+p <- ggpairs(iris, 
+        mapping = aes(color = Species),
+        title="Correlogram") 
+plotly::ggplotly(p)
+```
+:::
+
+::: {.infobox3 .knit data-latex="{knit}"}
+<sub> [**Exercise**]{.gray}: Try the following</sub>
+
+```{r fig.asp = 0.8, fig.width = 6.5, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(ggcorrplot); library(plotly)
+corr <- round(cor(mtcars), 1)
+ggcorrplot(corr)
+ggplotly(ggcorrplot(corr,lab=TRUE))
+```
+:::
+:::
+
+::: {.column width="60%"}
+```{r fig.asp = 0.8, fig.width = 7, fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(GGally)
+p <- ggpairs(iris, 
+        mapping = aes(color = Species),
+        title="Correlogram") 
+plotly::ggplotly(p)
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**ggiraph**]{.gray} package
+
+::: {.nobullet data-fragment-index="0"}
+-   <sub>The package [**ggiraph**](https://github.com/davidgohel/ggiraph) converts a static [**ggplot2**]{.gray} object into an interactive plot.</sub>
+:::
+
+::: columns
+::: {.column width="60%"}
+::: {.infobox3 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(ggiraph)
+p <- ggplot(iris,aes(x=Sepal.Length,
+                     y=Petal.Length, colour=Species))+
+  geom_point_interactive(aes(tooltip=
+                             paste0("<b>Petal Length:</b>",
+                                Petal.Length,"\n<b>Sepal Length:</b>",
+                                Sepal.Length,"\n<b>Species:</b>",
+                                Species)),size=1)+ 
+  theme_bw()
+tooltip_css <- "background-color:#f8f9f9;
+                padding:10px;
+                border-style:solid;
+                border-width:2px;
+                border-color:#125687;
+                border-radius:5px;"
+ggiraph(code=print(p),
+        hover_css="cursor:pointer;
+                   stroke:black;
+                   fill-opacity:0.3",
+        zoom_max=5,
+        tooltip_extra_css=tooltip_css,
+        tooltip_opacity=0.9,
+        height_svg=4,width_svg=4,
+        width=1)
+```
+:::
+:::
+
+::: {.column width="40%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(ggiraph)
+p <- ggplot(iris,aes(x=Sepal.Length,
+                     y=Petal.Length, colour=Species))+
+  geom_point_interactive(aes(tooltip=
+                             paste0("<b>Petal Length:</b>",
+                                Petal.Length,"\n<b>Sepal Length:</b>",
+                                Sepal.Length,"\n<b>Species:</b>",
+                                Species)),size=1)+ 
+  theme_bw()
+tooltip_css <- "background-color:#f8f9f9;
+                padding:10px;
+                border-style:solid;
+                border-width:2px;
+                border-color:#125687;
+                border-radius:5px;"
+ggiraph(code=print(p),
+        hover_css="cursor:pointer;
+                   stroke:black;
+                   fill-opacity:0.3",
+        zoom_max=5,
+        tooltip_extra_css=tooltip_css,
+        tooltip_opacity=0.9,
+        height_svg=4,width_svg=4,
+        width=1)
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**rbokeh**]{.gray} package
+
+::: {.nobullet data-fragment-index="0"}
+-   <sub>[**R**]{.gray} package [**rbokeh**](https://hafen.github.io/rbokeh/index.html) is a package that can be used for producing interactive plots.</sub>
+
+::: columns
+::: {.column width="50%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(rbokeh)
+figure(height=480,width=620,
+       xlab="Sepal Length",
+       ylab="Sepal Width") %>%
+ ly_points(Sepal.Length,
+           Sepal.Width,
+           data=iris,
+           color=Species,
+           glyph=Species,
+           hover=list(Sepal.Length,
+                      Sepal.Width))
+```
+:::
+:::
+
+::: {.column width="50%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(rbokeh)
+figure(height=480,width=620,
+       xlab="Sepal Length",
+       ylab="Sepal Width") %>%
+ ly_points(Sepal.Length,
+           Sepal.Width,
+           data=iris,
+           color=Species,
+           glyph=Species,
+           hover=list(Sepal.Length,
+                      Sepal.Width))
+```
+:::
+:::
+:::
+
+## 
+
+### Interactive plots: [**highcharter**]{.gray} package
+
+<sub>[**R**]{.gray} package [highcharter](http://jkunst.com/highcharter/) is a wrapper around javascript library [highcharts](https://www.highcharts.com/). </sub>
+
+::: columns
+::: {.column width="60%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(highcharter)
+p <- iris %>%
+  hchart("scatter",
+         hcaes(x="Sepal.Length",
+               y="Sepal.Width",group="Species")) %>%
+  hc_xAxis(title=list(text="Sepal Length"),
+           crosshair=TRUE) %>%
+  hc_yAxis(title=list(text="Sepal Width"),
+           crosshair=TRUE) %>%
+  hc_chart(zoomType="xy",inverted=FALSE) %>%
+  hc_legend(verticalAlign="top",align="right") %>% 
+  hc_size(height=500,width=500)
+
+htmltools::tagList(list(p))
+```
+:::
+:::
+
+::: {.column width="40%"}
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(highcharter)
+p <- iris %>%
+  hchart("scatter",
+         hcaes(x="Sepal.Length",
+               y="Sepal.Width",group="Species")) %>%
+  hc_xAxis(title=list(text="Sepal Length"),
+           crosshair=TRUE) %>%
+  hc_yAxis(title=list(text="Sepal Width"),
+           crosshair=TRUE) %>%
+  hc_chart(zoomType="xy",inverted=FALSE) %>%
+  hc_legend(verticalAlign="top",align="right") %>% 
+  hc_size(height=500,width=500)
+
+htmltools::tagList(list(p))
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**gganimate**]{.gray} package
+
+Consider the [gapminder]{.pink} data set on life expectancy, GDP per capita, and population by country.
+
+::: columns
+::: {.column width="52%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10, fig.align="center",eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(gganimate)
+library(gapminder)
+p <- ggplot(gapminder,
+       aes(x=gdpPercap, 
+           y=lifeExp, 
+           size=pop,
+           color=country)) + 
+  geom_point(show.legend=F,
+             alpha=0.7) + 
+  scale_color_viridis_d() + 
+  scale_size(range=c(2, 12)) + 
+  scale_x_log10()+ 
+  theme_bw() + 
+  labs(x="GDP per capita",
+      y="Life expectancy")
+p + 
+   transition_time(year) + 
+   labs(title="Year: {frame_time}")
+```
+:::
+:::
+
+::: {.column width="48%"}
+```{r fig.asp = 0.9, fig.width = 10, fig.align="center",eval = T, warning=FALSE, message=FALSE, echo=F}
+library(gganimate)
+library(gapminder)
+p <- ggplot(gapminder,
+       aes(x=gdpPercap, 
+           y=lifeExp, 
+           size=pop,
+           color=country)) + 
+  geom_point(show.legend=F,
+             alpha=0.7) + 
+  scale_color_viridis_d() + 
+  scale_size(range=c(2, 12)) + 
+  scale_x_log10()+ 
+  theme_bw() + 
+  labs(x="GDP per capita",
+      y="Life expectancy")
+p + 
+   transition_time(year) + 
+   labs(title="Year: {frame_time}")
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**gganimate**]{.gray} package
+
+Consider the same previous data set in the previous slide. Here, we use the package [**gapminder**]{.gray} to compare by continents.
+
+::: columns
+::: {.column width="52%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.9, fig.width = 10, fig.align="center",eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+p <- ggplot(gapminder,
+            aes(x=gdpPercap, 
+                y=lifeExp, 
+                size=pop,
+                color=country)) + 
+  geom_point(show.legend=F,
+             alpha=0.7) + 
+  scale_color_viridis_d() + 
+  scale_size(range=c(2, 12)) + 
+  scale_x_log10()+ 
+  theme_bw() + 
+  labs(x="GDP per capita",
+       y="Life expectancy") + 
+  facet_wrap(~continent)
+p + 
+  transition_time(year) + 
+  labs(title="Year: {frame_time}")
+```
+:::
+:::
+
+::: {.column width="48%"}
+```{r fig.asp = 0.9, fig.width = 10, fig.align="center",eval = T, warning=FALSE, message=FALSE, echo=F}
+p <- ggplot(gapminder,
+            aes(x=gdpPercap, 
+                y=lifeExp, 
+                size=pop,
+                color=country)) + 
+  geom_point(show.legend=F,
+             alpha=0.7) + 
+  scale_color_viridis_d() + 
+  scale_size(range=c(2, 12)) + 
+  scale_x_log10()+ 
+  theme_bw() + 
+  labs(x="GDP per capita",
+       y="Life expectancy") + 
+  facet_wrap(~continent)
+p + 
+  transition_time(year) + 
+  labs(title="Year: {frame_time}")
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**dygraphs**]{.gray} package
+
+::: {data-fragment-index="0"}
+-   <sub>The package [**dygraphs**](http://rstudio.github.io/dygraphs/) provides [**R**]{.gray} bindings for javascript library [**dygraphs**](http://dygraphs.com/) for time series data.</sub>
+-   <sub>Consider the three time series giving the monthly deaths from lung diseases in the UK from 1974 to 1979 for both sexes ([ldeaths]{.pink}), males ([mdeaths]{.pink}) and females ([fdeaths]{.pink}). </sub>
+:::
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 0.25, fig.width = 12.5, fig.align="center",eval = F, warning=FALSE, message=FALSE, echo=T}
+library(dygraphs)
+UKLungDeaths <- cbind(ldeaths, mdeaths, fdeaths)
+dygraph(UKLungDeaths, main="Monthly Deaths from Lung Diseases in the UK")%>%
+  dyOptions(colors=c("#66C2A5","#FC8D62","#8DA0CB"))
+```
+:::
+
+```{r fig.asp = 0.25, fig.width = 12.5, fig.align="center",eval = T, warning=FALSE, message=FALSE, echo=F}
+library(dygraphs)
+UKLungDeaths <- cbind(ldeaths, mdeaths, fdeaths)
+dygraph(UKLungDeaths, main="Monthly Deaths from Lung Diseases in the UK")%>%
+  dyOptions(colors=c("#66C2A5","#FC8D62","#8DA0CB"))
+```
+
+## 
+
+### Interactive plots: [**networkD3**]{.gray} package for network graph
+
+The package [**networkD3**]{.gray} allows the use of interactive network graphs from the [**D3.js**](https://d3js.org/) javascript library.
+
+::: columns
+::: {.column width="40%"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r fig.asp = 1.2, fig.width = 14, fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(networkD3)
+data(MisLinks,MisNodes)
+forceNetwork(Links=MisLinks,
+             Nodes=MisNodes,
+             Source="source",
+             Target="target",
+             Value="value",
+             NodeID="name",
+             Group="group", 
+             arrows = TRUE,
+             legend = FALSE,
+             opacity=0.9,
+             height=500,
+             width=700,
+             fontSize=30)
+```
+:::
+:::
+
+::: {.column width="60%"}
+```{r fig.asp = 1.2, fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(networkD3)
+data(MisLinks,MisNodes)
+forceNetwork(Links=MisLinks,
+             Nodes=MisNodes,
+             Source="source",
+             Target="target",
+             Value="value",
+             NodeID="name",
+             Group="group", 
+             arrows = TRUE,
+             legend = FALSE,
+             opacity=0.9,
+             height=500,
+             width=700,
+             fontSize=30)
+```
+:::
+:::
+
+## 
+
+### Interactive plots: [**leaflet**]{.gray} package
+
+The package [**leaflet**](https://rstudio.github.io/leaflet/) provides [**R**]{.gray} bindings for javascript mapping library; [**leafletjs**](http://leafletjs.com/).
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+library(leaflet)
+Carleton_University <- leaflet(height=360) %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=-75.698312, lat=45.383082, 
+             popup="Carleton University") 
+Carleton_University 
+```
+:::
+
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+library(leaflet)
+Carleton_University <- leaflet(height=360) %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=-75.698312, lat=45.383082, 
+             popup="Carleton University") 
+Carleton_University 
+```
+
+## 
+
+### Interactive plots: [**crosstalk**]{.gray} package
+
+R package [**crosstalk**](https://rstudio.github.io/crosstalk/index.html) allows crosstalk enabled plotting libraries to be linked. Through the `shared key` variable, data points can be manipulated simultaneously on two independent plots.
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, out.width="100%",fig.align="center", eval = F, warning=FALSE, message=FALSE, echo=TRUE}
+invisible(lapply(c("crosstalk","htmltools"), library, character.only = TRUE))
+shared_quakes <- SharedData$new(quakes[sample(nrow(quakes), 100),])
+lf <- leaflet(shared_quakes,height=300) %>%
+        addTiles(urlTemplate='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png') %>% addMarkers()
+py <- plot_ly(shared_quakes,x=~depth,y=~mag,size=~stations,height=300) %>% add_markers()
+div(div(lf,style="float:left;width:45%"),div(py,style="float:right;width:45%"))
+```
+:::
+
+```{r, out.width="100%",fig.align="center", warning=FALSE, message=FALSE, echo=F}
+invisible(lapply(c("crosstalk","htmltools"), library, character.only = TRUE))
+shared_quakes <- SharedData$new(quakes[sample(nrow(quakes), 100),])
+lf <- leaflet(shared_quakes,height=300) %>%
+        addTiles(urlTemplate='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png') %>% addMarkers()
+py <- plot_ly(shared_quakes,x=~depth,y=~mag,size=~stations,height=300) %>% add_markers()
+div(div(lf,style="float:left;width:45%"),div(py,style="float:right;width:45%"))
+```
+
+## R Markdown
+
+**R Markdown** is a powerful tool to write up a good-looking report by combining [**R**]{.gray} code chunks, analysis, and reporting into the same document.
+
+::: {.fragment data-fragment-index="1"}
+-   To start using **R Markdown** in the <b class="gray">Rstudio</b> environment, you need to install the package **rmarkdown**. This can be done by typing the following code:
+:::
+
+::: {.fragment data-fragment-index="2"}
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+install.packages("rmarkdown")
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="3"}
+-   If you want to use <a href="https://www.latex-project.org/" target="_blank">Latex</a> to write mathematical equations in **R Markdown**, then you need to install the package <b class="gray">tinytex</b> by typing the following code:
+
+::: {.infobox4 .knit data-latex="{knit}"}
+```{r, prompt=FALSE, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+tinytex::install_tinytex()
+```
+:::
+:::
+
+::: {.fragment data-fragment-index="4"}
+-   More information can be found in the link <a href="https://rmarkdown.rstudio.com/authoring_quick_tour.html" target="_blank">https://rmarkdown.rstudio.com/authoring_quick_tour.html</a>
+
+::: {.infobox4 .caution data-latex="{caution}"}
+This document is prepared by **R Markdown**.
+:::
+:::
+
+## 
+
+#### Exercises
+
+##### <sub>**Q1**: (see chapter 3 of Rob Kabacoff book : Data Visualization with R): The [Marriage]{.pink} dataset from the package [**mosaicData**]{.gray} contains the marriage records of 98 individuals in Mobile County, Alabama.</sub>
+
+::: {data-fragment-index="0"}
+-   <sub>Plot the bar chart to display the distribution of wedding participants by race.</sub>
+-   <sub>plot the distribution of race with modified colors and labels.</sub>
+-   <sub>plot the distribution of race as percantages.</sub>
+-   <sub>Sort the bar chart with percent labels.</sub>
+:::
+
+##### <sub>**Q2**: (see chapter 4 of Rob Kabacoff book : Data Visualization with R): The [mpg]{.pink} dataset from the package [**ggplot2**]{.gray} is a fuel economy data from 1999 to 2008 for 38 popular models of cars.</sub>
+
+::: {data-fragment-index="0"}
+-   <sub>Plot stacked bar chart as seen in Section 4.1.1 and add labels to it.</sub>
+-   <sub>Plot grouped bar chart as seen in Section 4.1.2 and add labels to it.</sub>
+:::
+
+##### <sub>**Q3**: (see chapter 11 of Rob Kabacoff book : Data Visualization with R):</sub>
+
+::: {data-fragment-index="0"}
+-   <sub>Save the graphs, in Q1 and Q2, as several formats ([pdf, jpeg, tiff, png, svg, wmf]{.pink}) using the function [ggsave()]{.green1}.<sub>
+-   <sub>Save the graphs, in Q1 and Q2, use the menu in plot panel: [Plots panel --\> Export --\> Save as Image or Save as PDF]{.pink}</sub>
+:::
