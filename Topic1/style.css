@@ -538,8 +538,8 @@
 .blackbox {
   padding: 1em;
   background: black;
-  color: white;
-  border: 2px solid orange;
+  color: whitesmoke;
+  border: 2px solid black;
   border-radius: 8px;
 }
 
@@ -548,8 +548,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
 }
 
 .infobox1 {
@@ -557,8 +557,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
 	font-size: 20px;
 }
 
@@ -567,8 +567,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
   font-size: 25px;
 }
 
@@ -577,8 +577,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
 	font-size: 30px;
 }
 
@@ -587,8 +587,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
 	font-size: 35px;
 }
 
@@ -597,8 +597,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
 	font-size: 34px;
 }
 
@@ -607,8 +607,8 @@
 	margin-bottom: 6px;
 	border: 3px solid orange;
 	border-radius: 6px;
-	background: #f5f5f5 5px center/3em no-repeat;
-	color: black;
+	background: #040406 5px center/3em no-repeat;
+	color: whitesmoke;
 	font-size: 30px;
 }
 
