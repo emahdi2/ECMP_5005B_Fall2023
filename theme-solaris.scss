@@ -1,0 +1,129 @@
+/*-- scss:defaults --*/
+
+// fonts
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&display=swap');
+$font-family-sans-serif: 'Open Sans';
+$font-family-monospace: 'Ubuntu Mono';
+$font-family-serif: 'Domine';
+$presentation-font-size-root: 26px;
+$fa-font-path: "fa/webfonts";
+
+// colors
+$body-color: #696969;
+$uoft-color: #1E3765;
+$presentation-heading-color: lighten($uoft-color, 10%);
+$backgroundColor: #FAFAFA;
+// title slide
+$presentation-title-slide-text-align: left;
+#title-slide {
+  .subtitle {
+    font-family: $font-family-serif;
+    font-size: var(--r-heading2-size);
+    color: $uoft-color;
+  }
+  h1 {
+    color: $uoft-color;
+  }
+}
+/*-- scss:rules --*/
+// fonts
+.reveal .footer > * {
+  font-size: 1rem;
+  text-align: right;
+  margin-right: 5%;
+}
+.reveal .in-column-footer  {
+  font-size: 1rem;
+  text-align: right;
+  margin-right: 5%;
+}
+.reveal {
+  h1 {
+    color: $uoft-color;
+    text-transform: none;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: $font-family-serif, serif;
+    font-weight: 700;
+    margin-bottom: .8em;
+  }
+}
+.reveal .slide figure>figcaption { text-align: center; }
+.reveal blockquote {
+  color: darken($body-color, 10%);
+}
+// font awesome
+.reveal i.fa {
+  font-family: 'FontAwesome';
+  font-style: normal;
+}
+
+.reveal .small {
+  font-size: 16pt;
+}
+
+// colors
+.reveal .green1 { color: #55c2a5 !important; }
+.reveal .orange { color: #fc8d62 !important; }
+.reveal .gray { color: #8da0cb !important; }
+.reveal .pink { color: #e78ac3 !important; }
+.reveal .green2 { color: #a6d854 !important; }
+.reveal .brown { color: #CB7E1F !important; }
+.reveal .red { color: #FF0000 !important; }
+.reveal .blue { color: #0000FF !important; }
+.reveal .green3 { color: #013220 !important; }
+.reveal .uoft { color: $uoft-color !important; }
+
+// accent colors
+.reveal .accent1 { color: #55c2a5 !important; }
+.reveal .accent2 { color: #fc8d62 !important; }
+.reveal .accent3 { color: #8da0cb !important; }
+.reveal .accent4 { color: #e78ac3 !important; }
+.reveal .accent5 { color: #a6d854 !important; }
+.reveal .accent6 { color: #CB7E1F !important; }
+.reveal .accent7 { color: #FF0000 !important; }
+.reveal .accent8 { color: #0000FF !important; }
+.reveal .accent9 { color: #013220 !important; }
+.reveal .uoft { color: $uoft-color !important; }
+
+// definition
+.definition {
+  border-left: solid 5px darken($body-color, 10%);
+  padding-inline-start: 20px;
+  margin-bottom: 5%;
+  margin-left: 5%;
+}
+
+// formatting
+.reveal .nobullet ul {
+  list-style-type: none;
+}
+.reveal .r-stack {
+  > .left-stack {
+    margin: 0;
+  }
+}
+.reveal .flex {
+  display: flex !important;
+  &.center {
+    justify-content: center;
+  }
+  &.two-column-title {
+    > * {
+      flex: 50%;
+    }
+    &.right-to-left {
+      flex-direction: row-reverse;
+    }
+  }
+}
+.reveal .text-center {
+  text-align: center;
+}
+// misc
+.reveal .ttc1 {
+  color: #ffcc33;
+  text-shadow: -1px -1px 0 darkgrey, 1px -1px 0 darkgrey, -1px 1px darkgrey, 1px 1px darkgrey;
+}
