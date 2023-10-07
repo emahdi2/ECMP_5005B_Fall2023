@@ -28,7 +28,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic1", warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE,root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic1",message=FALSE)
 ```
 
 

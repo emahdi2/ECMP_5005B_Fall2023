@@ -28,9 +28,10 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/OneDrive - Carleton University/Courses/ECMP 5005B_Data Analytics/Fall2023/ECMP_5005B_Fall2023/Topic1")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE,root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic1",message=FALSE)
 ```
 
+
 
 ## Learning objectives {.left}
 
@@ -67,8 +68,8 @@ knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/OneDrive - Carleto
 
 ## Typical steps for data analytics
 
-::: {.infobox4 .center}
-![](images/chart.png){height="490px"} </br>
+::: {.infobox6 .center}
+![](images/chart.png){height="450px"} </br>
 :::
 
 <sub>[**Source**]{.gray}: Robert I. Kabacoff. R in Action: Data analysis and graphics with R and Tidyverse. 2nd ed., Manning, 2022. </sub>
@@ -284,7 +285,7 @@ str(mydata)
 :::
 :::
 
-## 
+## {}
 
 ::: {.infobox3 .knit data-latex="{knit}"}
 
@@ -419,7 +420,7 @@ class(mylist)
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -541,7 +542,7 @@ merge(my_newdata,mydata, by = "id")
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -621,7 +622,7 @@ mat1 %*% mat2
 
 ::: {.column width="43%"}
 ::: {.fragment data-fragment-index="5"}
-::: {.infobox2 .knit data-latex="{knit}"}
+::: {.infobox3 .knit data-latex="{knit}"}
 
 ```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
 mat.prod <- mat2 %*% mat1
@@ -634,7 +635,7 @@ solve(mat.prod) #inverse matrix
 
 ::: {.column width="57%"}
 ::: {.fragment data-fragment-index="6"}
-::: {.infobox2 .knit data-latex="{knit}"}
+::: {.infobox3 .knit data-latex="{knit}"}
 
 ```{r, prompt=FALSE, eval=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
 #generate 5 random values from uniform(-1,2) 
@@ -647,7 +648,7 @@ runif(5, min = -1, max = 2)
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -750,7 +751,7 @@ newdata <- na.omit(mydata)
 :::
 :::
 
-## 
+## {}
 
 ::: {.infobox3 .knit data-latex="{knit}"}
 
@@ -769,7 +770,7 @@ par(mfrow = c(1, 1))
 ```
 
 
-## 
+## {}
 
 ### Reading data into [**R**]{.gray}
 
@@ -801,7 +802,7 @@ After setting up [**R**]{.gray} environment with <b class="gray">Rstudio</b>, yo
 ```
 :::
 
-## 
+## {}
 
 ### Reading data into [**R**]{.gray}: Example
 
@@ -853,7 +854,7 @@ skim(dat1)
 :::
 :::
 
-## 
+## {}
 
 ### Reading data into [**R**]{.gray}
 
@@ -888,7 +889,7 @@ name_data <- read_tsv("file_data.tsv", sheet=1) # import data from a tab delimit
 
 :::
 
-## 
+## {}
 
 ### Reading data into [**R**]{.gray}
 
@@ -924,7 +925,7 @@ name_data <- read_sas("file_data.sas7bdat") # import data from SAS
 :::
 :::
 
-## 
+## {}
 
 ### Example (reading data into [**R**]{.gray}):
 
@@ -1023,7 +1024,7 @@ mtcars[, "mpg"]
 | [group_by()]{.green1} | <sub>Group by one or more variables </sub> | <sub>`dataframe <- group_by(varaibles to group by)` </sub>                              |
 |                       |                                            |                                                                                         |
 
-## 
+## {}
 
 #### Examples:
 
@@ -1057,7 +1058,7 @@ dat5[1:2,] #note that the first returns is missing "NA". To remove "NA", use the
 :::
 :::
 
-## 
+## {} 
 
 ::: columns
 ::: {.column width="50%"}
@@ -1138,7 +1139,7 @@ mydata[c(1:5),c("id","age","weight","gender","income")]
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="48%"}
@@ -1188,7 +1189,7 @@ mutate_data
 -   <sub>Group data by [status]{.pink} and [income]{.pink} and calculate the mean and standard deviation of each group based on their age.</sub>
 :::
 
-## 
+## {}
 
 #### Probability functions in [**R**]{.gray}
 
@@ -1214,7 +1215,7 @@ mutate_data
 |                      |                       |     |                   |                     |     |                |                       |     |
 :::
 
-## 
+## {}
 
 #### Example:
 
@@ -1242,13 +1243,15 @@ ggplot(data, aes(x, y)) +
     -   *Answer*: Use the command `rnorm(300, mean =80, sd = 10)` to get the simulated series.\
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
 ### Tidyverse workflow
 
-![](images/tidyverse-flow.png){height="500px"}</br> [**Source**]{.gray}: <a href="https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/" target="_blank">https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/</a>. </br>
+![](images/tidyverse-flow.png){height="450px"}</br> 
+
+[**Source**]{.gray}: <a href="https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/" target="_blank">https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/</a>. </br>
 :::
 
 ::: {.column width="50%"}
@@ -1351,7 +1354,7 @@ ggplot(data = DATAFRAME) +
 |                             |                  |                                              |
 :::
 
-## 
+## {}
 
 ![](images/geoms.png){width="100%"} </b> [**Source**]{.gray}: <a href="https://nbisweden.github.io/RaukR-2019/ggplot/presentation/ggplot_presentation.html#1" target="_blank">https://nbisweden.github.io/RaukR-2019/ggplot/presentation/ggplot_presentation.html#1</a>. </br> See also <a href="https://clauswilke.com/dataviz/directory-of-visualizations.html" target="_blank">https://clauswilke.com/dataviz/directory-of-visualizations.html</a>
 
@@ -1434,7 +1437,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ### Aesthetic mappings
 
@@ -1466,7 +1469,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ### Aesthetic mappings
 
@@ -1495,7 +1498,7 @@ Mapping [class]{.orange} to the [size]{.green1} aesthetic display more clear inf
 :::
 :::
 
-## 
+## {}
 
 ### Aesthetic mappings
 
@@ -1525,7 +1528,7 @@ The visualization of the plot is not clear. We can fine tune the appearance of t
 :::
 :::
 
-## 
+## {}
 
 ### Aesthetic mappings
 
@@ -1620,7 +1623,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: {.infobox4 .knit data-latex="{knit}"}
 
@@ -1638,7 +1641,7 @@ ggplot(data = mpg) +
 ```
 
 
-## 
+## {}
 
 ::: {.infobox4 .knit data-latex="{knit}"}
 
@@ -1656,7 +1659,7 @@ ggplot(data = mpg) +
 ```
 
 
-## 
+## {}
 
 ##### Scales
 
@@ -1683,12 +1686,12 @@ Scale functions (which start with [scale\_]{.green1}) allow you to modify defaul
 | [facet_wrap(\~var, nrow = r)]{.green1}  | Partition plots for each level of variable (var) arranged into r rows                      |
 | [facet_wrap(\~var, ncol = c)]{.green1}  | Partition plots for each level of variable (var) arranged into c columns                   |
 | [facet_grid(row_var\~col_var)]{.green1} | Partition plots for combination of rows variable (row_var) and columns variable (col_var)  |
-| [facet_grid(\~row_var)]{.green1}        | Partition plots for for each level of rows variable (row_var), arranged as a single column |
-| [facet_grid(\~col_var)]{.green1}        | Partition plots for for each level of columns variable (col_var), arranged as a single row |
+| [facet_grid(rows = row_var)]{.green1}        | Partition plots for for each level of rows variable (row_var), arranged as a single column |
+| [facet_grid(cols = col_var)]{.green1}        | Partition plots for for each level of columns variable (col_var), arranged as a single row |
 |                                         |                                                                                            |
 :::
 
-## 
+## {}
 
 ::: {.infobox3 .knit data-latex="{knit}"}
 
@@ -1751,7 +1754,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: {.infobox4 .knit data-latex="{knit}"}
 
@@ -1805,7 +1808,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 #### Legend layout
 
@@ -1869,7 +1872,7 @@ p + labs(title = "Fuel economy data",
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -1905,7 +1908,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -1948,7 +1951,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -1984,7 +1987,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -2020,7 +2023,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -2058,7 +2061,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -2094,7 +2097,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -2130,7 +2133,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -2168,7 +2171,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ::: columns
 ::: {.column width="50%"}
@@ -2206,7 +2209,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 
 ```{r, echo=F}
@@ -2260,7 +2263,7 @@ ggplot(data = mpg) +
 :::
 :::
 
-## 
+## {}
 
 ### Boxplots
 
@@ -2320,7 +2323,7 @@ ggplot(data=mpg,
 :::
 :::
 
-## 
+## {}
 
 ### Boxplots
 
@@ -2374,7 +2377,7 @@ ggplot(data=mpg,
 :::
 :::
 
-## 
+## {}
 
 #### Line chart (time series) and Histogram
 
@@ -2446,7 +2449,7 @@ grid.arrange(P2, P1, nrow=1,
 :::
 :::
 
-## 
+## {}
 
 
 ```{r, out.width="100%",fig.align="center", eval = T, warning=FALSE, message=FALSE, echo=F}
@@ -2483,7 +2486,7 @@ grid.arrange(P2, P1, nrow=1,
 ```
 
 
-## 
+## {}
 
 ### Correlation matrix: [**ggcorrplot**]{.gray} package
 
@@ -2520,7 +2523,7 @@ ggcorrplot(corr,
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**plotly**]{.gray} package
 
@@ -2561,7 +2564,7 @@ iris %>%
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**plotly**]{.gray} package
 
@@ -2605,7 +2608,7 @@ ggplotly(p)
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**plotly**]{.gray} package
 
@@ -2644,7 +2647,7 @@ plot_ly(z = ~volcano) %>%
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots for matrix plot: [**plotly**]{.gray} and [**GGally**]{.gray} packages
 
@@ -2694,7 +2697,7 @@ plotly::ggplotly(p)
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**ggiraph**]{.gray} package
 
@@ -2768,7 +2771,7 @@ ggiraph(code=print(p),
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**rbokeh**]{.gray} package
 
@@ -2816,7 +2819,7 @@ figure(height=480,width=620,
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**highcharter**]{.gray} package
 
@@ -2868,7 +2871,7 @@ htmltools::tagList(list(p))
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**gganimate**]{.gray} package
 
@@ -2928,7 +2931,7 @@ p +
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**gganimate**]{.gray} package
 
@@ -2986,7 +2989,7 @@ p +
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**dygraphs**]{.gray} package
 
@@ -3015,7 +3018,7 @@ dygraph(UKLungDeaths, main="Monthly Deaths from Lung Diseases in the UK")%>%
 ```
 
 
-## 
+## {}
 
 ### Interactive plots: [**networkD3**]{.gray} package for network graph
 
@@ -3069,7 +3072,7 @@ forceNetwork(Links=MisLinks,
 :::
 :::
 
-## 
+## {}
 
 ### Interactive plots: [**leaflet**]{.gray} package
 
@@ -3099,7 +3102,7 @@ Carleton_University
 ```
 
 
-## 
+## {}
 
 ### Interactive plots: [**crosstalk**]{.gray} package
 
@@ -3167,7 +3170,7 @@ This document is prepared by **R Markdown**.
 :::
 :::
 
-## 
+## {}
 
 #### Exercises
 

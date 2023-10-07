@@ -1,0 +1,224 @@
+---
+title: "__Regularization__" 
+author: "Esam Mahdi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic5", warning=FALSE, message=FALSE)
+```
+
+------------------------------------------------------------------------
+
+## Ridge Regression and the Lasso
+
+In this example, we use the <span  style="color:red">Hitters</span> data set in the package __ISLR2__.
+We wish to predict a baseball player's <span style="color:green">Salary</span> on the basis of various statistics associated with performance in the previous year. 
+
+```{r}
+library(ISLR2)
+head(Hitters)
+anyNA(Hitters) #check if the data has any missing observations 
+sum(is.na(Hitters$Salary)) #count the number of missing values in the Salary variable
+```
+
+There are 59 missing observations in the <span style="color:green">Salary</span> variable.
+We can use the <span style="color:blue">na.omit()</span> function or the <span style="color:blue">drop_na()</span> in the package __tidyr__ to remove all of the rows that have missing values in any variable.
+
+```{r}
+Hitters <- na.omit(Hitters)
+dim(Hitters)
+```
+After removing the missing data, we left with 263 observations in 20 variables. 
+
+### Ridge regression
+
+We will use the __caret__ package to perform ridge regression. 
+In particular, we use the <span style="color:blue">train()</span> function, which can be used to fit ridge regression models, lasso models, and more.
+
+First, we set a random seed so our results will be reproducible, since the choice of the cross-validation folds is random. Then, we split the data into $75\%$ training data and $25\%$ test data as follows:
+
+```{r}
+library(caret)
+set.seed(1) #to reproduce the results
+# Partition (split) data and create index of selected values
+index <- sample(1:nrow(Hitters), 0.7*nrow(Hitters)) 
+# Create training and test data
+train_df <- Hitters[index,]
+test_df <- Hitters[-index,]
+```
+
+Next, we use the following syntax and arguments of S3 method for class 'formula' of the <span style="color:blue">train()</span> function to fit a ridge regression:
+
+`train(y ~ x, data, preProcess, method = "glmnet", tuneGrid = expand.grid(alpha = 0, lambda), trControl)`, where
+
+-    <span style="color:green">y</span>: Response variable.
+-    <span style="color:green">x</span>: Predictor variables.
+-    <span style="color:green">data</span>: Data frame.
+-    <span style="color:green">preProcess</span>: We may standardizes the variables so that they are on the same scale, which is always recommended. In this case, use `preProcess = c("center", "scale")`.
+-    <span style="color:green">method</span>: The <span style="color:blue">glmnet()</span> function in the package __glmnet__ is used to fit the ridge, lasso, elastic-net models, and more. In this case, we set `method = "glmnet"`.  
+-    <span style="color:green">tuneGrid</span>: A data frame with possible tuning values $\lambda$. By default the argument <span style="color:green">lambda</span> in `tuneGrid` is used for an automatically selected range of $\lambda$ values. However, we can implement the function over a grid of values. For example, we may implement
+the function over a grid of values ranging from $\lambda = 10^{10}$ to $\lambda = 10^{-2}$ by setting `tuneGrid = expand.grid(alpha = 0, lambda = 10^seq(10, -2, length = 100))`. 
+By default, the <span style="color:blue">train()</span> function has an <span style="color:green">alpha</span> argument that determines what type of model is fit. If <span style="color:green">alpha = 0</span> then a ridge regression model is fit, and if <span style="color:green">alpha = 1</span> then a lasso model is fit. 
+-    <span style="color:green">trControl</span>: A list of values that define how to control parameters for train model. For example, we may specify a K-fold cross-validation framework to train and test the model as well as to select the optimal tuning parameter from the initial vector of $\lambda$ values that we specified in the `tuneGrid` argument.   
+
+```{r}
+# Create a vector of potential tuning values
+Lambda_values <- 10^seq(10, -2, length = 100)
+# Specify 10-fold cross-validation framework to select the best tuning parameter 
+ctr <- trainControl(method = "cv", number = 10, # 10-fold cross-validation
+                    savePredictions = "all")
+# Train the ridge model
+fit_ridge <- train(Salary ~ ., 
+             data = train_df, 
+             preProcess = c("center", "scale"), 
+             method = "glmnet", 
+             tuneGrid = expand.grid(alpha = 0, 
+                                    lambda = Lambda_values), 
+             trControl = ctr)
+```
+
+### The optimal tuning hyperparameter lambda
+
+Unlike least squares model performed with <span style="color:blue">lm()</span>, ridge regression runs the model many times for different tuning values of $\lambda$. 
+We can find the optimal value of $\lambda$ that was obtained from the 10-fold cross-validation method by typing the following code:
+
+```{r}
+fit_ridge$bestTune[2] #alternatively type: fit_ridge$bestTune$lambda
+```
+
+We can plot the $\log(\lambda)$ against the root mean squared errors (RMSE) (the square root of the MSE) to see which $\lambda$ value gives the least value of RMSE.
+
+```{r,out.width="60%",fig.align="center",warning=FALSE, message=FALSE}
+library(tidyverse)
+ggplot(fit_ridge$results, aes(x = log(lambda), 
+                          y = RMSE)) + 
+  geom_point(color = "darkgreen", size = 1.5) + geom_line() +
+  labs(x = expression(log(lambda)),
+       y = "RMSE") +
+  theme_bw()
+```
+
+### Variable importance
+
+We can also plot the order the predictor variables according to the importance of their contribution to the response variable using the <span style="color:blue">varImp()</span> function 
+
+```{r, out.width="80%", fig.align="center", warning=FALSE, message=FALSE}
+ggplot(varImp(fit_ridge))
+```
+As clearly seen from the plot, none of the coefficients of the predictor variables are zero. This confirms that the ridge regression does not perform variable selection!
+
+### Model prediction
+We can evaluate the accuracy of the ridge model using the <span style="color:blue">RMSE()</span> and <span style="color:blue">R2()</span> functions in the package __caret__. The <span style="color:red">RMSE</span> denotes the root mean squared error and the closer the value of the RMSE to zero, the better the model, whereas the <span style="color:red">R2</span> denotes the coefficient of determination and the closer the value of the R2 to 1, the more accurate the prediction. 
+
+```{r, out.width="80%", fig.align="center", warning=FALSE, message=FALSE}
+pred1 <- predict(fit_ridge, newdata = test_df)
+data.frame(RMSE = RMSE(pred1, test_df$Salary),
+           Rsquared = R2(pred1, test_df$Salary))
+```
+
+### Ridge vs least squares regression 
+
+In general, the ridge regression is less prone to overfit the training data than the (unpenalized) ordinary least squares (OLS) regression. Therefore, we expect that the ridge regression predict training data less well than OLS, but better predictions to unseen test data. 
+Below we compare the prediction accuracy of ridge regression and OLS on test data.
+Instead of fitting the OLS using the <span style="color:blue">lm()</span> function, we use the <span style="color:blue">train()</span> function with the argument <span style="color:green"> method = "lm"</span>.
+
+```{r}
+fit_ols <- train(Salary ~ ., 
+             data = train_df, 
+             preProcess = c("center", "scale"), 
+             method = "lm",
+             trControl = ctr)
+```
+
+```{r, out.width="80%", fig.align="center", warning=FALSE, message=FALSE}
+# OLS model performance 
+pred2 <- predict(fit_ols, newdata = test_df)
+data.frame(RMSE = RMSE(pred2, test_df$Salary),
+           Rsquared = R2(pred2, test_df$Salary))
+```
+
+From the output of the unpenalized linear model (OLS), we see that the RMSE(ridge) is less than the RMSE(OLS) and the Rsquared(ridge) is greater than the Rsquared(OLS). 
+Thus, we conclude that the ridge regression can outperform least squares.
+
+## The Lasso
+
+We now ask whether the lasso can yield either a more accurate or a more interpretable
+model than ridge regression.
+In order to fit a lasso model, we once again use <span style="color:blue">train()</span> function;
+however, this time we use the argument <span style="color:green">alpha = 1</span>.
+Other than that change, we proceed just as we did in fitting a ridge model.
+
+```{r}
+# Train the lasso model
+fit_lasso <- train(Salary ~ ., 
+             data = train_df, 
+             preProcess = c("center", "scale"), 
+             method = "glmnet", 
+             tuneGrid = expand.grid(alpha = 1, 
+                                    lambda = Lambda_values), 
+             trControl = ctr)
+```
+
+To get the lasso regression model coefficient that has the best $\lambda$, we use the following syntax:
+
+```{r}
+round(coef(fit_lasso$finalModel, fit_lasso$bestTune$lambda), 3)
+```
+
+Here we see that 11 of the 19 coefficient estimates are exactly zero. 
+So the lasso model with $\lambda$ chosen by cross-validation contains only 8 predictors. 
+Below the plot of these variables according to the importance of their contribution to the baseball player's Salary.
+
+```{r, out.width="80%", fig.align="center", warning=FALSE, message=FALSE}
+ggplot(varImp(fit_lasso))
+```
+
+Finally, we calculate the RMSE and $R^2$ of the lasso model using the test data and compare them with those of ridge regression. 
+The results suggest that the lasso regression is slightly better than the ridge model.
+
+```{r, out.width="80%", fig.align="center", warning=FALSE, message=FALSE}
+pred3 <- predict(fit_lasso, newdata = test_df)
+data.frame(RMSE = RMSE(pred3, test_df$Salary),
+           Rsquared = R2(pred3, test_df$Salary))
+```
+
+## Elastic net regression
+
+Elastic net model combines the properties of ridge and lasso regression. 
+The model can be easily built using the <span style="color:blue">train()</span> function in the __caret__ package, which automatically selects the optimal value of parameters alpha and lambda. 
+We use the argument <span style="color:green">tuneLength = 10 </span>, which specifies that 10 different combinations of values for alpha and lambda are to be tested.
+
+```{r}
+# Train the lasso model
+fit_elastic.net <- train(Salary ~ ., 
+                         data = train_df, 
+                         preProcess = c("center", "scale"), 
+                         method = "glmnet", 
+                         tuneLength = 10, 
+                         trControl = ctr)
+```
+
+The best values of $\alpha$ and $\lambda$ obtained from the 10-fold cross-validation method are
+
+```{r}
+fit_elastic.net$bestTune 
+```
+
+As we did in the ridge and lasso models, we can calculate the RMSE and R-squared values for the elastic net regression model on the test data using the following code:
+
+```{r}
+pred4 <- predict(fit_elastic.net, newdata = test_df)
+data.frame(RMSE = RMSE(pred4, test_df$Salary),
+           Rsquared = R2(pred4, test_df$Salary))
+```
+
+
+
