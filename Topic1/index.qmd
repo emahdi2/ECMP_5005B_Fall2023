@@ -28,8 +28,9 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/1/Lect1/Topic1")
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic1", warning=FALSE, message=FALSE)
 ```
+
 
 ## Learning objectives {.left}
 
@@ -1496,8 +1497,8 @@ Scale functions (which start with [scale\_]{.green1}) allow you to modify defaul
 | [facet_wrap(\~var, nrow = r)]{.green1}  | Partition plots for each level of variable (var) arranged into r rows                      |
 | [facet_wrap(\~var, ncol = c)]{.green1}  | Partition plots for each level of variable (var) arranged into c columns                   |
 | [facet_grid(row_var\~col_var)]{.green1} | Partition plots for combination of rows variable (row_var) and columns variable (col_var)  |
-| [facet_grid(\~row_var)]{.green1}        | Partition plots for for each level of rows variable (row_var), arranged as a single column |
-| [facet_grid(\~col_var)]{.green1}        | Partition plots for for each level of columns variable (col_var), arranged as a single row |
+| [facet_grid(rows = row_var)]{.green1}        | Partition plots for for each level of rows variable (row_var), arranged as a single column |
+| [facet_grid(cols = col_var)]{.green1}        | Partition plots for for each level of columns variable (col_var), arranged as a single row |
 |                                         |                                                                                            |
 :::
 

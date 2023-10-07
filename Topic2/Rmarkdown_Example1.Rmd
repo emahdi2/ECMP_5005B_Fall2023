@@ -1,0 +1,442 @@
+---
+title: "__Linear Regression__"
+author: "Esam Mahdi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic2", warning=FALSE, message=FALSE)
+```
+
+------------------------------------------------------------------------
+
+## __Menu Pricing in Italian Restaurant Dataset__
+
+__Menu pricing in a new Italian restaurant in New York City__
+
+Consider the dataset that is available in the file __nyc.csv__ which can be found from the website
+of the book *"A Modern Approach to Regression with R"* written by Simon Sheather \url{https://gattonweb.uky.edu/sheather/book/data_sets.php}.
+The data are in the form of the average of customer views on
+
+-    $Y:~$ Price = the price (in \$US) of dinner (including one drink and a tip).
+-    $X_1:~$ Food = customer rating of the food (out of 30).
+-    $X_2:~$ Décor = customer rating of the decor (out of 30).
+-    $X_3:~$ Service = customer rating of the service (out of 30).
+-    $D:~$ East = dummy variable = 1/0 if the restaurant is east/west of Fifth Avenue.
+
+For this data, we need to:
+
+1.    Develop a regression model that directly predicts the price of dinner (in dollars) using a subset or all of the 4 potential predictor variables listed above.
+2.    Determine which of the predictor variables `Food`, `Décor` and `Service` has the largest estimated effect on Price? Is this effect also the most statistically significant?
+3.    If the aim is to choose the location of the restaurant so that the price achieved for dinner is maximized, should the new restaurant be on the east or west of Fifth Avenue?
+4.    Does it seem possible to achieve a price premium for “setting a new standard for high-quality service in Manhattan” for Italian restaurants?
+
+### Import the data
+Read and attach the data and named it as `"nyc"`. 
+It is more convenient to attach the data using the function $\color{blue}{\text{attach()}}$, so you can access its variables directly without calling the data.  
+```{r}
+nyc <- read.csv("https://gattonweb.uky.edu/sheather/book/docs/datasets/nyc.csv", header=TRUE)
+attach(nyc)
+head(nyc) # See the first 6 rows of this data
+str(nyc) # Display the structure of this data
+```
+
+### Data visualization
+You can visualize the matrix scatterplot, box-plot, histogram, density, and correlation plots of the data using the function $\color{blue}{\text{ggpairs()}}$ in the package __GGally__. 
+Also, to get more more insight examination, you can add an interact plot by applying the $\color{blue}{\text{ggplotly()}}$ function.
+
+Note that the variable `East` is an `"integer"` and not `"character"`. 
+Thus, you may (optional step and not mandatory) either use the function $\color{blue}{\text{as.factor()}}$ to change its class to `"factor"` or $\color{blue}{\text{as.character()}}$ to change its class to `"character"`.
+```{r,fig.align="center",fig.height = 7, fig.width = 8.8}
+require(GGally)
+require(plotly)
+p <- ggpairs(nyc[,-c(1,2)], title="Correlogram") #No need to include the variables "case" and "Restaurant", so you may exclude them
+ggplotly(p)
+```
+Try also the function $\color{blue}{\text{pairs.panels()}}$ in the __psych__ package to get a nice scatterplot matrix: 
+```{r,fig.align="center",fig.height = 7, fig.width = 8.8}
+library(psych)
+pairs.panels(nyc[,-c(1,2)])
+```
+
+Based on the matrix scatterplot and correlation coefficients and their corresponding p-values, there is indeed an association (linear) between the price of dinner (`Price`) and the other predictors.
+
+## __Simple Linear Regression__
+
+Let's first fit a simple linear regression using the variable (`Food`) as a single predictor. 
+
+### Step 1: Fit the model 
+You can fit the simple linear regression and get the output summary of this fit by using the function $\color{blue}{\text{lm()}}$ as follows.
+
+```{r}
+fit_simple <- lm(Price ~ Food)
+summary(fit_simple)
+```
+Note: if you do not attach data from the previous step, then the code `lm(Price ~ Food)` will gives an error. In this case, the correct command should `lm(Price ~ Food, data = nyc)` or `lm(nyc$Price ~ nyc$Food)`. 
+
+From the output summary, you can write the initial model as follows:
+
+$$\widehat{\text{Price}} = -17.8321 + 2.9390 \times \text{Food}$$
+
+### Step 2: Assessing the overall accuracy of the model
+The F-statistic = 107.6 (very large) and its p-value $< 2.2e-16$ (very small) indicates that the overall model is useful for predicting the price of the food. However, the Adjusted R-squared = 0.3895 is very low, which suggests that only $38.95\%$ of the variability in the price can be explain by this model. This is an indication that the model needs to be improved!
+
+### Step 3: Extract more information from the summary    
+You can extract lots of different information from the $\color{blue}{\text{lm()}}$ output. To see what’s inside, use the $\color{blue}{\text{names()}}$ as follows:
+
+```{r}
+names(fit_simple)
+```
+For example, to get the regression coefficients of this model, you can use following the command 
+
+```{r}
+fit_simple$coefficients
+# Alternatively, you can extract the coefficients as follows 
+coef(fit_simple)   
+```
+To get the residuals of this model, you can use the command 
+```{r}
+res <- fit_simple$residuals
+# Alternatively, you can extract the residuals as follows 
+res <- resid(fit_simple)
+```
+Also, you can get the predicted values of the prices (response variable), by typing either one of the following syntax
+```{r}
+pred_simple <- fit_simple$fitted.values
+# or 
+pred_simple <- fitted(fit_simple) 
+# or
+pred_simple <- fitted.values(fit_simple)
+```
+
+### Step 4: Confidence intervals
+You can extract the 95\% confidence intervals around the fitted coefficients (intercept and slop) using the following command
+```{r}
+confint(fit_simple)
+```
+For a particular value (or values) of the independent variable `Food`, say $\color{blue}{23}$ and $\color{blue}{26}$, you can also construct the:
+
+-    $\color{blue}{\text{Confidence interval for the mean value}}$ of the response variable by typing the following code:
+```{r}
+predict(fit_simple, data.frame(Food = (c(23, 26))), interval = "confidence")
+```
+
+-    $\color{blue}{\text{Prediction interval for an individual}}$ value of of the response variable by typing the following code:
+```{r}
+predict(fit_simple, data.frame(Food = (c(23, 26))), interval = "prediction")
+```
+
+### Step 5: Draw the fitted line
+You can use the package __ggplot2__ to draw the fitted line as follows
+
+```{r,fig.align="center",fig.height = 5, fig.width = 9.5}
+library("tidyverse")
+ggplot(data = nyc, 
+       aes(x = Food, y = Price)) + 
+  geom_point(color='blue') +
+  geom_smooth(method = "lm")
+```
+Note, in the previous code, the default of the syntax `geom_smooth()` is to `se = TRUE` which plots a 95\% confidence interval around the smooth line. If you need to plot the line without the confidence limits, then you need to specify `se = FALSE` as follows
+
+```{r,fig.align="center",fig.height = 5, fig.width = 9.5}
+ggplot(data = nyc, 
+       aes(x = Food, y = Price)) + 
+  geom_point(color='blue') +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+### Step 6: Check for the validity of the assumptions
+The residuals plots are useful to check for:
+
+-    Homogeneity variance (homoscedasticity): the variance of the errors is constant.
+-    Linearity: the relationships between the predictors and the response variable should be linear.
+-    Independence: the errors are not correlated.
+-    Normality: the errors are normally distributed.
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+par(mfrow=c(2,2)) # Split the plotting space in a matrix of 2 rows and 2 columns 
+plot(fit_simple)
+par(mfrow=c(1,1))
+```
+
+__Linearity:__ The plot of residuals versus predicted values, shown in the upper left of the diagnostic plots, is useful for checking the assumption of linearity and homoscedasticity. If the model meets the linear model assumption, we would expect to see a random scatter plot with residual values between -2 and 2. The red curve, which represents the LOWESS fit, should show a flat horizontal line with a zero slope. On the other hand, if this assumption is not valid, we expect to see residuals that are very large (large positive or large negative values). Based on these notes, we may conclude that the assumption of linearity is valid.
+
+__Normality:__ The QQ-plot in the upper right diagnostic checks shows that the normality assumption does not hold (observations are far a way from the 45-degree line) and the distribution is skewed due to many outliers.
+
+__Constant variance (homoscedasticity):__ To assess if the homoscedasticity assumption is met we check, again, the plot in the upper left of the diagnostic plots. The model has a constant variance if is no pattern in the residuals and that they are equally spread around the horizontal line with a zero slope. Another way is to examine the lower left plot (scale-location plot). We also need to see random pattern in the residuals. Checking the pattern of this plot, we decide that the homoscedasticity (constant variance) assumption is valid.
+
+__Leverage and outliers:__ Recall an __outlier__ point is an extreme response $Y$ value; __high leverage__ is an extreme predictor $X$ value; and an __influential__ point is a point that has a large impact on the regression. Outliers may or may not be influential points, but outliers and high leverage data points have the potential to be influential. Influential outliers are of the greatest concern. Any observation for which the Cook's distance is greater than or equal to 1 requires investigation. In our case, we don't have many observations with large Cook's distances.
+
+In summary, we conclude that the assumptions of the linear regression model are not severely violated and our model might be good to use for prediction (but needs to be improved!)
+
+You can apply the functions $\color{blue}{\text{hatvalues()}}$ and $\color{blue}{\text{cooks.distance()}}$ on the fitted model to get the diagonal elements of the $\color{blue}{\text{hat matrix and Cook’s distance}}$, respectively. 
+This helps you to detect both $\color{blue}{\text{leverage}}$ and $\color{blue}{\text{influence}}$ observations. The larger the values of $\color{blue}{\text{hatvalues()}}$ and $\color{blue}{\text{cooks.distance()}}$, the larger the influence on the prediction results.
+
+Recall:
+
+-    $\color{blue}{\text{leverage}}$ is unusual predictor value.
+-    $\color{blue}{\text{influence}}$ is a value whose removal from the data set would cause a large change in the estimated regression model coefficients.
+-    As a rule of thumb, we usually consider points for which the hat value $h_{ii} > 2(p+1)/n \approx 0.023809$, where $p$ is the number of predictors and $n$ is the sample size. 
+-    Also, a value of Cook’s distance $D_i> 4/(n-p-1) \approx 0.024096$ is considered to be influential. 
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+nyc <- nyc %>% 
+  mutate(nyc, 
+         hat=hatvalues(fit_simple), 
+         cooks=cooks.distance(fit_simple))
+# which values can potentially seen as influential values
+filter(nyc, hat > 2*2/168)       # 2*2/168 = 2*(p+1)/n
+filter(nyc, cooks > 4/(168 - 2)) # 4/(168 - 2) = 4/(n-p-1)
+```
+You can also examine the $\color{blue}{\text{bubble plot (influence plot)}}$ that combines the standardized residuals and the hat-values. First, you can calculate the Cook’s distances by using the function $\color{blue}{\text{cooks.distance()}}$.
+Then you can use the $\color{blue}{\text{hatvalues()}}$ to compute the diagnostics.
+
+```{r,fig.align="center",fig.height = 5, fig.width = 9.5}
+std_resid <- rstandard(fit_simple)
+cooks_D <- cooks.distance(fit_simple)
+hat_values <- hatvalues(fit_simple)
+plot(hat_values, std_resid, cex = 10*sqrt(cooks_D), xlab = "Hat values", ylab ="Residuals")
+abline(h=c(-2.5, 2.5), lty=2)
+```
+There are apparently several data points that exhibit large influence in the simple linear regression. 
+
+Alternatively, you can use the __car__ package to:
+
+-    $\color{blue}{\textbf{Check for outliers}}$: You can use the function $\color{blue}{\text{outlierTest()}}$ build in __R__ package __car__ to test the hypotheses 
+\begin{align*}
+H_0:&\quad \text{Data has no outliers}\\
+H_A:&\quad \text{Data has at least one outlier}    
+\end{align*} 	
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+library("car")
+outlierTest(fit_simple)
+```
+The resulted p-value from the $\color{blue}{\text{outlierTest()}}$ function suggests that we have some outliers in the menu pricing.
+Observation $\color{blue}{130}$ is the most extreme observation in our data which corresponds to food rate = $\color{blue}{19}$.
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+Food[130]
+```  
+
+-    $\color{blue}{\textbf{Check for influential leverage points}}$  
+```{r,fig.align="center",fig.height = 5, fig.width = 9.5}
+car::influencePlot(fit_simple)
+```
+The plot suggests that the values $\color{blue}{50, 117, 130, 159}$ and $\color{blue}{168}$ of the response variable $Y$(`Price`) might correspond to influential points of $X$(`Food`).  
+
+-    $\color{blue}{\textbf{Check for heteroscedasticity}}$: The function $\color{blue}{\text{ncvTest()}}$ from the __R__ package __car__ is the score test that can be used to test for non-constant error variance.
+The null hypothesis
+$$H_0:\hbox{The errors have constant variance}$$
+is tested against the alternative hypothesis 
+$$H_a:\hbox{The errors have non constant variances}$$
+```{r}
+car::ncvTest(fit_simple)
+```
+The large p-value ($p = 0.4629$) suggests that the variance is constant.
+
+## __Multiple Linear Regression__
+
+Now, let's fit multiple linear regressions using all predictors. 
+
+### Step 1: Fit the multiple linear regression
+Fit the multiple linear regression where you include all predictors (full model with no interaction) and get the output summary.
+```{r}
+fit_full1 <- lm(Price ~ Food + Decor + Service + East)
+summary(fit_full1)
+```
+From the output summary, we can write the initial full model without interaction as follows:
+
+$$\widehat{\text{Price}} = -24.02 + 1.54 \times \text{Food} + 1.91 \times \text{Décor} - 0.003 \times \text{Service}+ 2.07 \times \text{East}$$
+
+-    Décor has the largest effect on Price since its regression coefficient is largest. Also it is the most statistically significant since its $p$-value is the smallest of the three. 
+  - Be careful! in general we can't compare the regression coefficients of the variable, but in  this example we can! Why?
+-    In order that the price achieved for dinner is maximized, the new restaurant should be on the east of Fifth Avenue since the coefficient of the dummy variable is statistically significantly larger than 0.
+-    It does not seem possible to achieve a price premium for "setting a new standard for high quality service in Manhattan" for Italian restaurants since the regression coefficient of Service is not statistically significantly greater than zero.
+
+### Step 2: Fit a reduced model
+Fit a reduced model removing the variable "Service" from the the previous model and get the output summary.
+
+```{r}
+fit_reduced <- lm(Price ~ Food + Decor + East)
+# another way to fit a reduced model is to use the function update() as follows
+# m2 <- update(m1,~.-Service)
+summary(fit_reduced)
+```
+The updated (reduced) regression model is
+$$\widehat{\text{Price}} = -24.03 + 1.54 \times \text{Food} + 1.91 \times \text{Décor} + 2.07 \times \text{East}$$
+
+Comparing the last two sets of output from __R__, we see that the regression coefficients
+for the variables in both models are very similar.
+_$\color{red}{\text{Note that this does not always occur!}}$_
+
+### Step 3: Fit an interaction model
+We wonder whether the restaurants on the east side of Fifth Avenue are very different from those on the west side with service and Décor thought to be more important on the east of Fifth Avenue.
+Thus, to investigate whether the effect of the predictors depends on the dummy variable East, we consider the extended model (full model):
+$$
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + \beta_4 D + \beta_5 \times X_1 \times D + \beta_6 \times X_2 \times D + \beta_7 \times X_3 \times D +\varepsilon,
+$$
+where
+
+-    $Y=$ `Price`, 
+-    $X_1=$ `Food`, 
+-    $X_2=$ `Décor`, 
+-    $X_3=$ `Service`, 
+-    $D=$ `East` (dummy variable of two values: 0 and 1).
+
+We test the hypothesis 
+$$
+H_0: \beta_3=\beta_5=\beta_6=\beta_7=0
+$$
+against
+$$
+H_A: H_0 \text { is not true }
+$$
+i.e., we test the reduced model 
+$$
+Y=\beta_0+\beta_1 x_1+\beta_2 x_2 +\beta_4\times D +\varepsilon
+$$
+
+against the full model with interaction
+$$
+Y=\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + \beta_4 D + \beta_5 \times X_1 \times D + \beta_6 \times X_2 \times D + \beta_7 \times X_3 \times D +\varepsilon
+$$
+Below is the code and output summary for fitting a full linear model taking into account the interactions due to location variable.
+```{r}
+fit_full2 <- lm(Price~Food+Decor+Service+East+Food:East+Decor:East+Service:East)
+# Alternatively, you can use * operator to shorthand the previous command as follows:
+# fit_full2 <- lm(Price~ Food*East + Decor*East+ Service*East)
+summary(fit_full2)
+```
+
+### Step 4: Compare between the fitted models
+We also use the function $\color{blue}{\text{anova()}}$ to compare between the reduced and full models.
+
+```{r}
+anova(fit_reduced,fit_full2)
+```
+The F-statistic, from the output summary in step 3, for comparing the reduced and full models based on ANOVA is given by
+$$F=\frac{(RSS(\text{reduced})-RSS(\text{full}))/(df(\text{reduced})-df(\text{full}))}{RSS(\text{full})/df_{\text{full}}}\approx 1.11$$
+The $p-$value of ANOVA test equals $0.36$. 
+Thus, we can't adopt the full model and we conclude that the reduced final model 
+
+$$\widehat{\text{Price}} = -24.03 + 1.54 \times \text{Food} + 1.91 \times \text{Décor} + 2.07 \times \text{East}$$
+is a good to be adopted.
+
+### Step 5: Check for the validity of the model assumptions
+You can check for $\color{blue}{\text{homoscedasticity, linearity, independency and normality}}$ of your residuals obtained by your fitted model as we did with the simple linear regression model.
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+par(mfrow=c(2,2))
+plot(fit_reduced)
+par(mfrow=c(1,1))
+```
+
+Alternatively, you can use the __ggplot2__ package to reproduce the previous plots as follows
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+# add standardized residuals as a new variable with the name "res.std" to the nyc data frame
+nyc <- nyc %>% 
+  mutate(res.std = rstandard(fit_reduced))
+# one way to produce ggplot is to include data frame and aes() within the ggplot() function, leaving geom_point() empty as follows
+p1 <- ggplot(nyc, aes(Food, res.std)) + 
+  geom_point() + 
+  ylab("Standardized Residuals") + 
+  theme_bw()
+# another way is to include data frame name within ggplot() and aes() within geom_point() as follows
+p2 <- ggplot(nyc) + 
+  geom_point(aes(Decor, res.std)) + 
+  ylab("Standardized Residuals") + 
+  theme_bw()
+# one way to produce ggplot is to include data frame and aes() within the geom_point() function, leaving ggplot() empty as follows
+p3 <- ggplot() + 
+  geom_point(data = nyc, aes(Service, res.std))+
+  ylab("Standardized Residuals") + 
+  theme_bw()
+# you can also start with the data frame and %>% and then add the layouts of the ggplot() as follows
+p4 <- nyc %>% ggplot() + 
+  geom_point(aes(East,res.std)) 
+ ylab("Standardized Residuals") + 
+  theme_bw()
+# USe the grid.arrange() function in the "gridExtra" package to arrange multiple ggplots on one page 
+library("gridExtra") 
+layout <- rbind(c(1,2),c(3,4))
+grid.arrange(grobs=list(p1,p2,p3,p4),
+             ncol=2,
+             layout_matrix=layout)
+```
+
+### Step 6: Test for multicollinearity (only for multiple linear models)
+One of the assumptions that the multiple linear regression model satisfies is that the predictors are uncorrelated. 
+This assumption can be checked using the $j$ th $\color{blue}{\text{variance inflation factor (VIF)}}$ given by  
+$$
+1 /\left(1-R_j^2\right),\quad j = 1,2,\cdots,p
+$$ 
+where $R_j^2$ denote the value of $\color{blue}{\text{coefficient of determination, } R^2},$ obtained from the regression of $x_{\mathrm{j}}$ on the other $x^{\prime}$ 's (i.e., the amount of variability explained by this regression).
+
+As a rule of thumb:
+
+-    $\color{blue}{\text{VIF}< 5}$ is an indicative of $\color{blue}{\text{no}}$ multicollinearity.	
+-    $\color{blue}{5\le\text{VIF}<10}$ is an indicative of $\color{blue}{\text{minor}}$ multicollinearity.
+-    $\color{blue}{\text{VIF}\ge 10}$ is an indicative of $\color{blue}{\text{serious}}$ multicollinearity.
+
+In __R__ package __car__, the function $\color{blue}{\text{vif()}}$ can be used to calculate the VIF for this data set. 
+
+```{r}
+car::vif(fit_reduced)
+```
+We noticed that all variance inflation factors less than 5 and so no multicollinearity is detected.
+
+## __Stepwise Regression__
+
+The $\color{blue}{\text{step()}}$ function in __base__ __R__ performs stepwise model
+selection (forward, backward, or stepwise) using an $\color{blue}{\text{AIC}}$ criterion.
+
+### Backward stepwise regression: 
+You start from the full model (all variables in the model) deleting 
+predictor variables one at a time, and stopping when the removing of
+variables would no longer improve the model. 
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+full.model <- lm(Price~ Food*East + Decor*East+ Service*East)
+backward <- step(full.model, direction="backward")
+summary(backward)
+```
+
+### Forward stepwise regression: 
+You start from the null model (only intercept with no variables in the model) adding 
+predictor variables to the model one at a time, and stopping when the addition of
+variables would no longer improve the model. 
+
+The $\color{blue}{\text{step()}}$ function in __base__ __R__ performs the forward stepwise model
+using an $\color{blue}{\text{AIC}}$ criterion as seen follows: 
+
+In this example, this can be done using the function $\color{blue}{\text{step()}}$
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+null.model <- lm(Price ~ 1, data = nyc)
+forward <- step(null.model, direction="forward",
+                scope = formula(full.model),trace = 0)
+summary(forward)
+```
+
+### Stepwise regression (both): 
+In both stepwise regression, you combine the forward and backward stepwise approaches. Variables are entered one at a time, but at each step, the variables in the model are reevaluated, and those that don’t contribute to the model are deleted. A predictor variable may be added to, and deleted from, a model several times before a final solution is reached.
+
+```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
+both <- step(null.model, direction="both",
+             scope = formula(full.model),trace = 0)
+summary(both)
+```
+
+__Last Step__: It is always recommended to detach the data using the function $\color{blue}{\text{detach()}}$.
+```{r}
+detach(nyc)
+```
