@@ -28,13 +28,8 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-<<<<<<< HEAD
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE,root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023/Topic1",message=FALSE)
-=======
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/ECMP_5005B_Fall2023", warning=FALSE, message=FALSE)
->>>>>>> a67ddb9d760453ffb7d05bf6dd4c483b65446cac
+knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/Topic1")
 ```
-
 
 ## Learning objectives {.left}
 
