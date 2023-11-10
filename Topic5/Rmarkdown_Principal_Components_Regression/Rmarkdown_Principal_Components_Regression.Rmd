@@ -1,0 +1,124 @@
+---
+title: "__Principal components regression (PCR)__" 
+author: "Esam Mahdi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+------------------------------------------------------------------------
+
+## Principal components regression (PCR)
+
+<span style="color:green">Principal components regression (PCR)</span> can be performed using the <span style="color:blue">pcr()</span> function, which is part of the __pls__ package. 
+The syntax for the <span style="color:blue">pcr()</span> function is similar to that for <span style="color:blue">lm()</span> with more additional arguments.
+
+-    The default argument <span style="color:blue">`center = TRUE`</span> is used to perform mean centering and setting the argument <span style="color:blue">`scale = TRUE`</span> will standardize predictor variables.
+-    Setting the argument <span style="color:blue">`validation = "CV"`</span> tells __R__ to calculate 10-fold cross-validation error for each possible value of the number of principal components used. 
+Also note that you can specify <span style="color:blue">`validation = "LOOCV"`</span> instead to perform <span style="color:blue">`leave-one-out cross-validation`</span>.
+-    To determine the number of principal components worth keeping, you can examine the resulting fit using the syntax <span style="color:blue">`summary()`</span>.
+
+We use the <span  style="color:red">Hitters</span> data set in the package __ISLR2__ and
+We wish to perform a principle component analysis in order to predict a baseball player's <span style="color:green">Salary</span>. Recall that there are 59 missing observations in the <span style="color:green">Salary</span> variable, hence, we remove these values using the <span style="color:blue">na.omit()</span> function.
+After removing the missing data, we left with 263 observations in 20 variables (19 predictors and one response). 
+
+```{r}
+library(ISLR2)
+Hitters <- na.omit(Hitters)
+head(Hitters)
+```
+
+### Perform PCR on the full dataset 
+First, we apply the <span style="color:blue">`pcr()`</span> function using the full data set as a training data.
+The cross-validation, CV, score is provided for each possible number of the 19 principle components, ranging from $M=0$ to $M=19$.
+
+```{r}
+library(pls)
+set.seed(2)
+pcr.fit1 <- pcr(Salary ~., data = Hitters, 
+               scale = TRUE, 
+               validation = "CV")
+summary(pcr.fit1)
+```
+The <span style="color:blue">`summary()`</span> function provides the percentage of variance explained in the predictors and in the response using different numbers of components.
+For example, using only one component, $M=1$, only captures $38.31\%$ of all the information of the predictors and $40.63\%$ of all the variance of response variable. 
+In contrast, using six components, $M=6$, increases the values to $88.63\%$ and $46.48\%$ respectively.
+Of course, using all 19 components, $M= p = 19$, will explain $100\%$ of all the variance in predictors. Note that $M= p = 19$ increases the percentage of variance explained in the response to $54.61\%$.
+
+Note that <span style="color:blue">`pcr()`</span> function reports the <span style="color:blue">_root mean squared error_</span>; in order to obtain
+the usual MSE, we must square this quantity.
+For example, a root mean squared error of $351.9$ (PCA 1) corresponds to an $351.9^{2} = 123,833.6$.
+
+We can use the <span style="color:blue">`validationplot()`</span> function to plot the CV scores and examine the best number of PCs that minimizes the mean sum of squares (smallest cross-validation error).
+
+```{r, out.width="80%", fig.align="center", warning=FALSE, message=FALSE}
+validationplot(pcr.fit1, val.type = "MSEP", legendpos = "top")
+```
+
+From the plot we see that only 6 components might be okay to be included in the model.
+
+### Perform PCR on the training data and evaluate its test set performance
+
+We now perform PCR on the training data and evaluate its test set performance.
+First, we set a random seed so our results will be reproducible, since the choice of the cross-validation folds is random. 
+Then, we split the data into $50\%$ training data and $50\%$ test data as follows:
+
+```{r}
+library(caret)
+set.seed(1) #to reproduce the results
+# Partition (split) data and create index of selected values
+index <- sample(1:nrow(Hitters), 0.5*nrow(Hitters)) 
+# Create training and test data
+train_df <- Hitters[index,]
+test_df <- Hitters[-index,]
+```
+
+```{r}
+set.seed(1)
+pcr.fit2 <- pcr(Salary ~., data = Hitters, 
+               subset = index,
+               scale = TRUE, 
+               validation = "CV")
+validationplot(pcr.fit2, val.type = "MSEP")
+```
+
+We find (from the MSEP plot above) that the lowest cross-validation error might occurs when $M = 5$ or $M = 6$ components are used. 
+Thus, we may fit a regression considering only 5 principle components and evaluate its performance by calculating the MSE using the test data as follows:
+
+```{r}
+pcr.fit3 <- pcr(Salary ~., data = train_df, 
+               scale = TRUE, 
+               ncomp = 5)
+summary(pcr.fit3)
+```
+Finally, 
+
+```{r}
+pcr.pred3 <- predict(pcr.fit3, test_df, ncomp = 5)
+mean((pcr.pred3 - test_df$Salary)^2)
+```
+
+Recall that a smaller `Mean Squared Error (MSE)` indicates a better model and we don’t know if the $MSE = 142811.8$ is a small or large! 
+In this case, we require an additional model to facilitate the comparison of MSE values across all models.
+
+To assess whether using adding additional component can enhance the performance of this model, we compute the Mean Squared Error (MSE) for the regression model using 6 principle components (PCs):
+
+```{r}
+pcr.fit4 <- pcr(Salary ~., data = train_df, 
+               scale = TRUE, 
+               ncomp = 6)
+pcr.pred4 <- predict(pcr.fit4, test_df, ncomp = 6)
+mean((pcr.pred4 - test_df$Salary)^2)
+```
+
+The MSE associated with a regression of 6 PCs is $141882.9$ which is smaller than that one obtained from considering 5 PCs. 
+Thus, we may conclude that using a regression model with only 6 components for the <span  style="color:red">Hitters</span> is good approach to predict the baseball player's <span style="color:green">Salary</span>.
