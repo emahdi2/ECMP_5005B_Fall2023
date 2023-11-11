@@ -1,0 +1,281 @@
+---
+title: "__Bagging and Random Forests for Regression Trees__"
+author: "Esam Mahdi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this example, we apply bagging and random forests to the <span  style="color:red">Boston</span> dataset, sourced from the __ISLR2__ library. Data has 506 rows and 13 variables:
+
+-    <span style="color:green">crim</span>: per capita crime rate by town.
+
+-    <span style="color:green">zn</span>: proportion of residential land zoned for lots over 25,000 sq.ft.
+
+-    <span style="color:green">indus</span>: proportion of non-retail business acres per town.
+
+-    <span style="color:green">chas</span>: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+
+-    <span style="color:green">nox</span>: nitrogen oxides concentration (parts per 10 million).
+
+-    <span style="color:green">rm</span>: average number of rooms per dwelling.
+
+-    <span style="color:green">age</span>: proportion of owner-occupied units built prior to 1940.
+
+-    <span style="color:green">dis</span>: weighted mean of distances to five Boston employment centres.
+
+-    <span style="color:green">rad</span>: index of accessibility to radial highways.
+
+-    <span style="color:green">tax</span>: full-value property-tax rate per $10,000.
+
+-    <span style="color:green">ptratio</span>: pupil-teacher ratio by town.
+
+-    <span style="color:green">lstat</span>: lower status of the population (percent).
+
+-    <span style="color:green">medv</span>: (Response variable) median value of owner-occupied homes in $1000s.
+
+# Fitting Regression Trees
+
+## Step 1: Data partition 
+
+Load the required libraries and create training/test sets.
+
+```{r, warning=FALSE, message=FALSE}
+# Load the required packages
+library(ISLR2) # Introduction to Statistical Learning, Second Edition
+library(caret) # Classification And REgression Training
+library(rpart.plot) # Plot 'rpart' Models
+# Create 50% training set and 50% test set (hold-out-validation)
+set.seed(1)
+Index <- sample(1:nrow(Boston), nrow(Boston)/2)
+# Alternatively, we may use the createDataPartition() function as below:  
+# Index <- createDataPartition(Boston[,"medv"], p = 0.5, list = FALSE)
+train.data <- Boston[Index,]  # 253 observations
+test.data <- Boston[-Index,]  # 253 observations
+```
+
+## Step 2: Model building 
+
+Fit the tree to the training data using the <span style="color:blue">train()</span> function in the __caret__ library. 
+The package __caret__ call the <span style="color:blue">rpart()</span> function from the package __rpart__ and train the model through cross-validation.
+For more information about these functions, type `?rpart` and `?train`.
+The important arguments of the <span style="color:blue">train()</span> function are given below:
+
+-    <span style="color:green">form</span>: a formula that links the response (target) variable to the independent (features) variables. 
+
+-    <span style="color:green">data</span>: the data to be used for modeling. 
+
+-    <span style="color:green">trControl</span>: specify the control parameters for the resampling method and other settings when training a machine learning model. It is important when performing cross-validation or bootstrapping to assess the model's performance. 
+Here are some of the sub-arguments we can set within `trControl`:
+     -  <span style="color:green">method</span>: specifies the resampling method to be used, such as `"cv"` for k-fold cross-validation, `"repeatedcv"` for repeated k-fold cross-validation, `"boot"` for bootstrap resampling, and more.
+     -  <span style="color:green">number</span>: it defines the number of folds in k-fold cross-validation ($=k$).
+     -  <span style="color:green">repeats</span>: for repeated k-fold cross-validation, it specifies the number of times the cross-validation process is repeated.
+     -  <span style="color:green">p</span>: For bootstrap resampling, it sets the proportion of data to resample in each iteration.
+    
+-    <span style="color:green">method</span>: defines the algorithm specifying which classification or regression model to use. In the case of decision trees we use the default method as `"rpart2"` where the model complexity is determined using the one-standard error method. 
+
+-    <span style="color:green">preProcess</span>: an optional argument is used to perform mean centering and standardize predictor variables by typing `preProcess = c("center", "scale")`. 
+
+-    <span style="color:green">tuneLength</span>: specifies the number of values to consider during the hyperparameter tuning process. It typically applies to the `cp` parameter, which controls the complexity of the tree in regression tree models. 
+
+-    <span style="color:green">tuneGrid</span>: define a grid of values for the `cp` parameter.
+
+```{r}
+ctrl <- trainControl(method = "cv", number = 5)
+fit1 <- train(medv ~., 
+             data = train.data,
+             method ="rpart2",
+             trControl = ctrl,
+             preProcess = c("center", "scale"),
+             #tuneGrid = expand.grid(cp = seq(0.01,0.5, by = 0.01)),
+             tuneLength = 10 # consider 10 different values of the cp (maxdepth = 10)
+             ) 
+fit1
+plot(fit1)
+```
+
+After examining the output and the fitted model plot, it becomes evident that the root mean squared errors (RMSE) exhibit minimal variation when the maximum tree depth exceeds 7. Consequently, we establish the maximum depth to be 7 and proceed to retrain the model using the <span style="color:blue">rpart()</span> function from the __rpart__ library as shown below:
+
+```{r}
+fit2 <- rpart(medv ~., 
+              train.data, 
+              method  = "anova", #default method 
+              maxdepth = 7) 
+fit2
+```
+Note that the <span style="color:green">method</span> argument is used to define the algorithm that we use to fit the model. It can be one of `"anova"`, `"poisson"`, `"class"`, `"exp"`. In the case of regression trees where the target variable is numeric, we use the default method as `"anova"`.
+
+Notice that the output of the fitted model indicates that only four of the variables
+have been used in constructing the tree (`rm`, `lstat`, `age`, and `crime`).
+In the context of a regression tree, the <span style="color:blue">deviance</span> is simply the sum of squared errors (SSE) for the tree.
+
+The output of the fitted model shows the steps of the trees splits (root, branch, leaf).
+For example, we start with 253 observations at the root node and we split the data first on the <span style="color:blue">rm</span> variable (first branch). 
+That is, out of all other features, <span style="color:blue">rm</span> is the most predictive variable that optimizes a reduction in SSE. 
+
+We see that 222 observations with <span style="color:blue">rm</span> less than 6.9595 will go to the left hand side of the second branch (denoted by <span style="color:red">2)</span>) and 31 observations with <span style="color:blue">rm</span> greater than or equal to 6.9595 will go to the right hand side of the second branch (denoted by <span style="color:red">3)</span>). 
+The <span style="color:blue">asterisks (*)</span> indicate the leaf nodes associated with prediction values.   
+For example, out of the 31 observations where $\text{rm} \geq 6.9595$, we see that 16 observations are following the terminal node (leaf) $6.9595\leq \text{rm} < 7.553$ with a predicted median value of owner-occupied homes (on average) of $\$33,425$. The SSE of these observations is 505.49.
+On the other hand, we see that 15 observations are following the leaf $\text{rm} \geq 7.553$ with a predicted median value of owner-occupied homes (on average) of $\$45,380$. The SSE of these observations is 317.00.
+
+For the case where we split $\text{rm} < 6.9595$, we have another split.
+We split on the <span style="color:blue">lstat</span> so that those that are greater than or equal to 14.405 (87 observations) will go to the left hand side of a sub branch and others (135 observations) will go to the other side. 
+We continue in this manner so that we split again on the <span style="color:blue">crim</span>.
+We predict (on average) the median value of owner-occupied homes of those with $\text{lstat}\geq 14.405$ and $\text{crime}\geq 11.48635$
+to be $\$10,315$. On the other hand, we predict the median value of owner-occupied homes of those with $\text{lstat}\geq 14.405$, $\text{crime}<11.48635$, and $\text{age}\geq 93.95$ to be $\$14,429$ and those with $\text{lstat}\geq 14.405$, $\text{crime}<11.48635$, and $\text{age}<93.95$ to be $\$18,087$. 
+
+Similarly, we predict (on average) the median value of owner-occupied homes of those with $\text{lstat} < 14.405$ and $\text{rm}<6.543$ to be $\$21,378$, whereas the predicted median value of owner-occupied homes (on average) of those with $\text{lstat} < 14.405$ and $\text{rm}\geq 6.543$ is $\$27,730$.
+
+## Step 3: Model visualizing 
+
+We can easily visualize the model output by plotting the tree using the <span style="color:blue">rpart.plot()</span> function in the __rpart.plot__ library using the following code.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+rpart.plot(fit2, type = 2, digits = 3, fallen.leaves = FALSE)
+```
+
+## Step 4: Cost complexity pruning   
+
+Note that the <span style="color:blue">rpart()</span> function is automatically applying a range of `cost complexity values and tuning parameter` ($\alpha$) to prune the tree that has the lowest error. 
+This function performs a 10-fold cross validation, comparing the error that is associated with each $\alpha$ on the hold-out validation data. 
+This process helps identify the optimal $\alpha$ and, consequently, the most suitable subtree to prevent overfitting the data.
+To gain insight into the internal process, we can utilize the <span style="color:blue">printcp()</span> function as demonstrated below. For instance, with no split, the `cross-validation error (xerror)` is 1.01828, whereas with 6 splits, this error decreases to 0.23986.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+# Cost complexity pruning
+printcp(fit2)
+# Extract minimum error associated with the optimal cost complexity value for each model
+cp <- fit2$cptable
+```
+
+
+We may also use the <span style="color:blue">plotcp()</span> function to create a graph displaying the cross-validation errors (y-axis) in relation to the cost complexity (CP) values (x-axis).
+In this example, we observe diminishing values of the `cost complexity (CP)` after reaching 7 terminal nodes (tree size $= |T|$). It's worth noting that the dashed line intersects the point where $|T| = 5$." Therefore, we can explore the potential for improved prediction accuracy by employing a pruned tree with 5 terminal nodes.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+plotcp(fit2)
+```
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+prune.fit <- prune(fit2, cp[5]) 
+rpart.plot(prune.fit, type = 2, digits = 3, fallen.leaves = FALSE)
+```
+
+## Step 5: Model evaluation
+
+Recall that a smaller `Mean Squared Error (MSE)` indicates a better model.  
+Therefore, we can assess the model's performance by computing the `MSE` using the test data:
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+# predictions on the test set using the unpruned tree
+yhat <- predict(fit2, newdata = test.data)
+# Mean square errors
+mean((yhat - test.data$medv)^2)
+```
+
+In this example, the mean square errors is 35.29. 
+Note that we don't know if this value is a small or large!
+We require an additional model to facilitate the comparison of `Mean Squared Error (MSE)` values across all models.
+
+To assess whether pruning the tree can enhance the performance of this model, we compute the `Mean Squared Error (MSE)` for the `pruned tree` model using the following approach: 
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+# predictions on the test set using the pruned tree
+yhat <- predict(prune.fit, newdata = test.data)
+# Mean square errors
+mean((yhat - test.data$medv)^2)
+```
+
+The square root of the MSE associated with the pruned tree is 35.90 which is larger than that one obtained from the unpruned tree. Thus, we may conclude that the pruned tree model has lower prediction accuracy.
+
+# Bagging and Random Forests
+
+Here we apply bagging and random forests, using the <span style="color:blue">randomForest()</span> function in the __randomForest__ package.
+
+## Perform bagging
+
+The argument `mtry = 12` in the <span style="color:blue">randomForest()</span> function indicates that all 12 predictors should be considered
+for each split of the tree (i.e, <span style="color:blue">bagging</span> is used).
+The argument `importance = TRUE` indicates that the importance of predictors should be assessed.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+library(randomForest)
+set.seed (1)
+bag.boston <- randomForest(medv ~ ., 
+                           data = Boston,
+                           subset = Index, 
+                           mtry = 12, #all 12 predictors should be considered for bagging
+                           importance = TRUE)
+bag.boston
+```
+
+To measure the performance of the bagged regression tree on the test set, we plot the predicted values versus the actual values. 
+The plot helps us assess how well the model predicts the actual values. If the points on the plot are close to the 45-degree line (the line where predicted values equal true values), it suggests that the model is a good fit. If the points deviate significantly from this line, it indicates prediction errors.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+yhat.bag <- predict(bag.boston, newdata = test.data)
+plot(yhat.bag, test.data$medv)
+abline(0, 1)
+mean((yhat.bag - test.data$medv)^2)
+```
+
+The test set MSE associated with the bagged regression tree is 23.42 which is less than that 
+one obtained from the unpruned tree (35.29).
+This indicates that bagging algorithm for regression tree yielded an improvement over unpruned tree.
+We could change the number of trees grown by <span style="color:blue">randomForest()</span> using the `ntree` argument:
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+bag.boston <- randomForest(medv ~ ., 
+                           data = Boston,
+                           subset = Index, 
+                           mtry = 12, #all 12 predictors should be considered for bagging
+                           ntree = 25)
+yhat.bag <- predict(bag.boston, newdata = test.data)
+mean((yhat.bag - test.data$medv)^2)
+```
+
+## Perform random forest
+
+Growing a random forest proceeds in exactly the same way that we use for applying the bagged model, except that we use a smaller value of the mtry argument. 
+
+By default, <span style="color:blue">randomForest()</span> uses $p/3$ variables when building a random forest of regression trees, and $\sqrt{p}$ variables when building a random forest of classification trees. Here we use `mtry = 6`.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+set.seed (1)
+rf.boston <- randomForest(medv ~ ., 
+                           data = Boston,
+                           subset = Index, 
+                           mtry = 6, #subset of 6 predictors - random forest algorithm
+                           importance = TRUE)
+yhat.rf <- predict(rf.boston, newdata = test.data)
+mean((yhat.rf - test.data$medv)^2)
+```
+
+The test set MSE is 20.07; this indicates that random forests yielded an improvement over bagging in this case.
+
+Using the <span style="color:blue">importance()</span> function, we can view the importance of each variable.
+
+```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
+importance(rf.boston)
+```
+
+Two measures of variable importance are reported:
+
+  -  The first is based upon the mean decrease of accuracy in predictions on the out of bag samples when a given variable is permuted.
+  -  The second is a measure of the total decrease in node impurity that results from splits over that variable, averaged over all trees.  
+
+In the case of regression trees, the node impurity is measured by the training `RSS`. Plots of these importance measures can be produced using the <span style="color:blue">varImpPlot()</span> function as follows:
+
+```{r,out.width="100%",fig.align="center",warning=FALSE, message=FALSE}
+varImpPlot(rf.boston, main = "Variable Importance as Measured by a Random Forest")
+```
+The results indicate that across all of the trees considered in the random forest, the wealth of the community (`lstat`) and the house size (`rm`) are by far the two most important variables.
+

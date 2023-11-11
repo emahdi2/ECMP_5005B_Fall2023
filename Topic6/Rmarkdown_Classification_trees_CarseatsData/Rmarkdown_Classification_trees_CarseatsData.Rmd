@@ -1,0 +1,135 @@
+---
+title: "__Classification Trees__"
+author: "Esam Mahdi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this example, we apply a classification tree model to the <span  style="color:red">Carseats</span> dataset, sourced from the __ISLR2__ library. This dataset is a simulated collection of `sales` data for `child car seats` across 400 distinct stores:
+
+-    <span style="color:green">Sales</span>: (Response variable) Unit sales (in thousands) at each location.
+
+-    <span style="color:green">CompPrice</span>: Price charged by competitor at each location.
+
+-    <span style="color:green">Income</span>: Community income level (in thousands of dollars).
+
+-    <span style="color:green">Advertising</span>: Local advertising budget for company at each location (in thousands of dollars).
+
+-    <span style="color:green">Population</span>: Population size in region (in thousands).
+
+-    <span style="color:green">Price</span>: Price company charges for car seats at each site.
+
+-    <span style="color:green">ShelveLoc</span>: A factor with levels Bad, Good and Medium indicating the quality of the shelving location for the car seats at each site.
+
+-    <span style="color:green">Age</span>: Average age of the local population.
+
+-    <span style="color:green">Education</span>: Education level at each location.
+
+-    <span style="color:green">Urban</span>: A factor with levels No and Yes to indicate whether the store is in an urban or rural location.
+
+-    <span style="color:green">US</span>: A factor with levels No and Yes to indicate whether the store is in the US or not.
+
+In this data, the response variable <span style="color:green">Sales</span> is a continuous variable. Thus to use a classification trees, we recode it as a binary variable.
+We use the <span style="color:green">ifelse()</span> function to create a variable, called
+<span style="color:red">High</span>, which takes on a value of <span style="color:red">Yes</span> if the Sales variable exceeds 8, and takes on a value of <span style="color:red">No</span> otherwise.
+
+```{r, warning=FALSE, message=FALSE}
+# Load the packages
+library(ISLR2)   # Load the package ISLR2
+attach(Carseats) # Attach the data set
+High <- factor(ifelse(Sales <= 8, "No", "Yes"))
+# Merge High variable with the rest of the Carseats data
+Carseats <- data.frame(Carseats, High) 
+```
+
+In this example, we fit a classification tree on the train data using the <span style="color:blue">train()</span> function in the __caret__ library. 
+The package __caret__ call the <span style="color:blue">rpart()</span> function from the package __rpart__ and train the model through cross-validation.
+For more information about these functions, type `?rpart` and `?train`.
+
+__Step 1: Create train/test set__ 
+
+First, we split the observations into a <span style="color:red">training set</span> (say $70\%$) and a <span style="color:red">test data</span> (say $30\%$).
+
+```{r, warning=FALSE, message=FALSE}
+# Create 70% training set and 30% test set (hold-out-validation)
+library(caret) #Load the package
+set.seed(123)
+Index <- createDataPartition(Carseats[,"High"], p = 0.7, list = FALSE)
+train.data <- Carseats[Index,]  # 281 observations
+test.data <- Carseats[-Index,]  # 119 observations 
+```
+
+__Step 2: Build the model__ 
+
+In this stage, we construct the tree using the training set. Following this, we generate predictions and assess its performance on the test data by computing the confusion matrix:
+
+```{r}
+library(rpart) 
+fit <- rpart(High ~.-Sales, 
+             data = train.data,
+             method = "class")
+pred <- predict(fit, newdata = test.data, type = "class")
+# Compute accuracy
+table_mat <- table(test.data[, "High"], pred)
+table_mat 
+sum(diag(table_mat))/sum(table_mat)
+
+```
+
+The model accurately predicted 28 child car seats with high sales and correctly classified 25 car seats as not high in sales. However, the model also erroneously classified 21 car seats as high sales when they were actually not high.
+The misclassification rate is calculated as $\dfrac{21 + 11}{119}\approx 0.27$, meaning that the model's accuracy stands at approximately $73\%$.
+
+__Step 3: Model visualizing__ 
+
+To visualize the model output, you may use the <span style="color:blue">rpart.plot()</span> function in the __rpart.plot__ library as follows:
+
+```{r}
+fit
+library(rpart.plot) #Plot 'rpart' Models
+rpart.plot(fit, type = 2, digits = 3, fallen.leaves = FALSE)
+```
+
+__Step 4: Tune the hyper-parameters__ 
+
+The <span style="color:blue">rpart()</span> function for decision tree construction offers several parameters that govern different aspects of the model's fitting process. These parameters can be managed and customized using the <span style="color:blue">rpart.control()</span> function. 
+
+The minimum error associated with the optimal cost complexity value is:
+
+```{r}
+(cp <- fit$cptable[which.min(fit$cptable[, "rel error"]), "CP"])
+```
+
+```{r}
+control <- rpart.control(minsplit = 4, #minimum number of observations in the node before the algorithm perform a split
+                         cp = cp)
+
+tune_fit <- rpart(High ~.-Sales, 
+             data = train.data,
+             method = "class",
+             control = control)
+
+pred <- predict(tune_fit, newdata = test.data, type = "class")
+# Compute accuracy
+table_mat <- table(test.data[, "High"], pred)
+table_mat 
+sum(diag(table_mat))/sum(table_mat)
+```
+
+Using this approach, we achieve a success rate of approximately $76\%$, surpassing the performance of the previous model.
+
+
+
+
+
+
+
