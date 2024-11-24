@@ -48,6 +48,7 @@ In this example, we apply bagging and random forests to the <span  style="color:
 ## Step 1: Data partition 
 
 Load the required libraries and create training/test sets.
+Here, we split the observations into a training set (say 50%) and a test data (say 50%). In this example, we use the <span style="color:blue">createDataPartition()</span> function in the __caret__ library. For more information about this function, type `?createDataPartition`.
 
 ```{r, warning=FALSE, message=FALSE}
 # Load the required packages
@@ -56,17 +57,17 @@ library(caret) # Classification And REgression Training
 library(rpart.plot) # Plot 'rpart' Models
 # Create 50% training set and 50% test set (hold-out-validation)
 set.seed(1)
-Index <- sample(1:nrow(Boston), nrow(Boston)/2)
-# Alternatively, we may use the createDataPartition() function as below:  
-# Index <- createDataPartition(Boston[,"medv"], p = 0.5, list = FALSE)
-train.data <- Boston[Index,]  # 253 observations
-test.data <- Boston[-Index,]  # 253 observations
+Index <- createDataPartition(Boston[,"medv"], p = 0.5, list = FALSE)
+# Alternatively, we may use the sample() function as below:  
+# Index <- sample(1:nrow(Boston), size = nrow(Boston)/2)
+train.data <- Boston[Index,]  # 254 observations
+test.data <- Boston[-Index,]  # 252 observations
 ```
 
 ## Step 2: Model building 
 
 Fit the tree to the training data using the <span style="color:blue">train()</span> function in the __caret__ library. 
-The package __caret__ call the <span style="color:blue">rpart()</span> function from the package __rpart__ and train the model through cross-validation.
+The package __caret__ call the <span style="color:blue">rpart()</span> function from the package __rpart__ (Recursive Partitioning and Regression Trees) and train the model through cross-validation.
 For more information about these functions, type `?rpart` and `?train`.
 The important arguments of the <span style="color:blue">train()</span> function are given below:
 
@@ -90,10 +91,10 @@ Here are some of the sub-arguments we can set within `trControl`:
 -    <span style="color:green">tuneGrid</span>: define a grid of values for the `cp` parameter.
 
 ```{r}
-ctrl <- trainControl(method = "cv", number = 5)
+ctrl <- trainControl(method = "cv", number = 5) # use 5-fold cross-validation
 fit1 <- train(medv ~., 
              data = train.data,
-             method ="rpart2",
+             method ="rpart2", # rpart2 is an enhanced version of rpart to handle overfitting more effectively
              trControl = ctrl,
              preProcess = c("center", "scale"),
              #tuneGrid = expand.grid(cp = seq(0.01,0.5, by = 0.01)),
@@ -103,37 +104,27 @@ fit1
 plot(fit1)
 ```
 
-After examining the output and the fitted model plot, it becomes evident that the root mean squared errors (RMSE) exhibit minimal variation when the maximum tree depth exceeds 7. Consequently, we establish the maximum depth to be 7 and proceed to retrain the model using the <span style="color:blue">rpart()</span> function from the __rpart__ library as shown below:
+After examining the output and the fitted model plot, it becomes evident that the root mean squared errors (RMSE) exhibit minimal variation when the maximum tree depth exceeds 6. Consequently, we establish the maximum depth to be 6 and proceed to retrain the model using the <span style="color:blue">rpart()</span> function from the __rpart__ library as shown below:
 
 ```{r}
 fit2 <- rpart(medv ~., 
               train.data, 
-              method  = "anova", #default method 
-              maxdepth = 7) 
+              method  = "anova", #default method for regression trees
+              maxdepth = 6) 
 fit2
 ```
 Note that the <span style="color:green">method</span> argument is used to define the algorithm that we use to fit the model. It can be one of `"anova"`, `"poisson"`, `"class"`, `"exp"`. In the case of regression trees where the target variable is numeric, we use the default method as `"anova"`.
 
-Notice that the output of the fitted model indicates that only four of the variables
-have been used in constructing the tree (`rm`, `lstat`, `age`, and `crime`).
+Notice that the output of the fitted model indicates that only four of the variables have been used in constructing the tree (`lstat`, `nox`, `rad`, and `rm`).
 In the context of a regression tree, the <span style="color:blue">deviance</span> is simply the sum of squared errors (SSE) for the tree.
 
 The output of the fitted model shows the steps of the trees splits (root, branch, leaf).
-For example, we start with 253 observations at the root node and we split the data first on the <span style="color:blue">rm</span> variable (first branch). 
-That is, out of all other features, <span style="color:blue">rm</span> is the most predictive variable that optimizes a reduction in SSE. 
+For example, we start with 254 observations at the root node and we split the data first on the <span style="color:blue">lstat</span> variable (first branch). 
+That is, out of all other features, <span style="color:blue">lstat</span> is the most predictive variable that optimizes a reduction in SSE. 
 
-We see that 222 observations with <span style="color:blue">rm</span> less than 6.9595 will go to the left hand side of the second branch (denoted by <span style="color:red">2)</span>) and 31 observations with <span style="color:blue">rm</span> greater than or equal to 6.9595 will go to the right hand side of the second branch (denoted by <span style="color:red">3)</span>). 
+We see that 163 observations for which <span style="color:blue">lstat</span> are more than or equal to 8.96 will go to the left hand side of the first branch (denoted by <span style="color:red">2)</span>) and 91 observations for which <span style="color:blue">lstat</span> less than 8.96 will go to the right hand side of the first branch (denoted by <span style="color:red">3)</span>). 
 The <span style="color:blue">asterisks (*)</span> indicate the leaf nodes associated with prediction values.   
-For example, out of the 31 observations where $\text{rm} \geq 6.9595$, we see that 16 observations are following the terminal node (leaf) $6.9595\leq \text{rm} < 7.553$ with a predicted median value of owner-occupied homes (on average) of $\$33,425$. The SSE of these observations is 505.49.
-On the other hand, we see that 15 observations are following the leaf $\text{rm} \geq 7.553$ with a predicted median value of owner-occupied homes (on average) of $\$45,380$. The SSE of these observations is 317.00.
-
-For the case where we split $\text{rm} < 6.9595$, we have another split.
-We split on the <span style="color:blue">lstat</span> so that those that are greater than or equal to 14.405 (87 observations) will go to the left hand side of a sub branch and others (135 observations) will go to the other side. 
-We continue in this manner so that we split again on the <span style="color:blue">crim</span>.
-We predict (on average) the median value of owner-occupied homes of those with $\text{lstat}\geq 14.405$ and $\text{crime}\geq 11.48635$
-to be $\$10,315$. On the other hand, we predict the median value of owner-occupied homes of those with $\text{lstat}\geq 14.405$, $\text{crime}<11.48635$, and $\text{age}\geq 93.95$ to be $\$14,429$ and those with $\text{lstat}\geq 14.405$, $\text{crime}<11.48635$, and $\text{age}<93.95$ to be $\$18,087$. 
-
-Similarly, we predict (on average) the median value of owner-occupied homes of those with $\text{lstat} < 14.405$ and $\text{rm}<6.543$ to be $\$21,378$, whereas the predicted median value of owner-occupied homes (on average) of those with $\text{lstat} < 14.405$ and $\text{rm}\geq 6.543$ is $\$27,730$.
+For example, out of the 91 observations where $\text{lstat} < 8.96$, we see that 12 observations are following the terminal node (leaf) $\text{rm} \ge 7.4235$ with a predicted median value of owner-occupied homes (on average) of $\$45.74167$. The SSE of these observations (deviance) is $228.2292$.
 
 ## Step 3: Model visualizing 
 
@@ -148,7 +139,7 @@ rpart.plot(fit2, type = 2, digits = 3, fallen.leaves = FALSE)
 Note that the <span style="color:blue">rpart()</span> function is automatically applying a range of `cost complexity values and tuning parameter` ($\alpha$) to prune the tree that has the lowest error. 
 This function performs a 10-fold cross validation, comparing the error that is associated with each $\alpha$ on the hold-out validation data. 
 This process helps identify the optimal $\alpha$ and, consequently, the most suitable subtree to prevent overfitting the data.
-To gain insight into the internal process, we can utilize the <span style="color:blue">printcp()</span> function as demonstrated below. For instance, with no split, the `cross-validation error (xerror)` is 1.01828, whereas with 6 splits, this error decreases to 0.23986.
+To gain insight into the internal process, we can utilize the <span style="color:blue">printcp()</span> function as demonstrated below. For instance, with no split, the `cross-validation error (xerror)` is 1.00716, whereas with 6 splits, this error decreases to 0.29698.
 
 ```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
 # Cost complexity pruning
@@ -159,7 +150,8 @@ cp <- fit2$cptable
 
 
 We may also use the <span style="color:blue">plotcp()</span> function to create a graph displaying the cross-validation errors (y-axis) in relation to the cost complexity (CP) values (x-axis).
-In this example, we observe diminishing values of the `cost complexity (CP)` after reaching 7 terminal nodes (tree size $= |T|$). It's worth noting that the dashed line intersects the point where $|T| = 5$." Therefore, we can explore the potential for improved prediction accuracy by employing a pruned tree with 5 terminal nodes.
+This plot is useful to choose the optimal value for `cost complexity (CP)` that results in the lowest cross-validation error.  
+In this example, we observe diminishing values of the `CP` after reaching 5 terminal nodes (tree size $= |T|$). It's worth noting that the dashed line intersects the point where $|T| = 4$." Therefore, we can explore the potential for improved prediction accuracy by employing a pruned tree with 5 terminal nodes.
 
 ```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
 plotcp(fit2)
@@ -181,7 +173,7 @@ yhat <- predict(fit2, newdata = test.data)
 mean((yhat - test.data$medv)^2)
 ```
 
-In this example, the mean square errors is 35.29. 
+In this example, the mean square errors is 22.52. 
 Note that we don't know if this value is a small or large!
 We require an additional model to facilitate the comparison of `Mean Squared Error (MSE)` values across all models.
 
@@ -189,12 +181,12 @@ To assess whether pruning the tree can enhance the performance of this model, we
 
 ```{r,out.width="80%",fig.align="center",warning=FALSE, message=FALSE}
 # predictions on the test set using the pruned tree
-yhat <- predict(prune.fit, newdata = test.data)
+yhat.prune <- predict(prune.fit, newdata = test.data)
 # Mean square errors
-mean((yhat - test.data$medv)^2)
+mean((yhat.prune - test.data$medv)^2)
 ```
 
-The square root of the MSE associated with the pruned tree is 35.90 which is larger than that one obtained from the unpruned tree. Thus, we may conclude that the pruned tree model has lower prediction accuracy.
+The square root of the MSE associated with the pruned tree is 28.13026 which is larger than that one obtained from the unpruned tree (with number of levels (or "depth") equals 6). Thus, we may conclude that the pruned tree model has lower prediction accuracy.
 
 # Bagging and Random Forests
 
@@ -227,8 +219,7 @@ abline(0, 1)
 mean((yhat.bag - test.data$medv)^2)
 ```
 
-The test set MSE associated with the bagged regression tree is 23.42 which is less than that 
-one obtained from the unpruned tree (35.29).
+The test set MSE associated with the bagged regression tree is 13.03514 which is less than that one obtained from the unpruned tree (22.52).
 This indicates that bagging algorithm for regression tree yielded an improvement over unpruned tree.
 We could change the number of trees grown by <span style="color:blue">randomForest()</span> using the `ntree` argument:
 
@@ -237,7 +228,7 @@ bag.boston <- randomForest(medv ~ .,
                            data = Boston,
                            subset = Index, 
                            mtry = 12, #all 12 predictors should be considered for bagging
-                           ntree = 25)
+                           ntree = 25) # number of trees are to be constructed - default = 500
 yhat.bag <- predict(bag.boston, newdata = test.data)
 mean((yhat.bag - test.data$medv)^2)
 ```
@@ -259,7 +250,7 @@ yhat.rf <- predict(rf.boston, newdata = test.data)
 mean((yhat.rf - test.data$medv)^2)
 ```
 
-The test set MSE is 20.07; this indicates that random forests yielded an improvement over bagging in this case.
+The test set MSE is 13.14; this indicates that random forests yielded an improvement over bagging in this case.
 
 Using the <span style="color:blue">importance()</span> function, we can view the importance of each variable.
 

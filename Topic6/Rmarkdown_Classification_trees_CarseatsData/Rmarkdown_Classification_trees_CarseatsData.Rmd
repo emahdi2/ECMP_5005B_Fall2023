@@ -52,32 +52,31 @@ High <- factor(ifelse(Sales <= 8, "No", "Yes"))
 Carseats <- data.frame(Carseats, High) 
 ```
 
-In this example, we fit a classification tree on the train data using the <span style="color:blue">train()</span> function in the __caret__ library. 
-The package __caret__ call the <span style="color:blue">rpart()</span> function from the package __rpart__ and train the model through cross-validation.
-For more information about these functions, type `?rpart` and `?train`.
-
 __Step 1: Create train/test set__ 
 
 First, we split the observations into a <span style="color:red">training set</span> (say $70\%$) and a <span style="color:red">test data</span> (say $30\%$).
+Here, we use the <span style="color:blue">sample()</span> function in the __base__ library with its default argument `replace = FALSE`. For more information about this function, type `?sample`.
 
 ```{r, warning=FALSE, message=FALSE}
 # Create 70% training set and 30% test set (hold-out-validation)
-library(caret) #Load the package
 set.seed(123)
-Index <- createDataPartition(Carseats[,"High"], p = 0.7, list = FALSE)
-train.data <- Carseats[Index,]  # 281 observations
-test.data <- Carseats[-Index,]  # 119 observations 
+Index <- sample(1:nrow(Carseats), size = 0.7*nrow(Carseats))
+train.data <- Carseats[Index,]  # 280 observations
+test.data <- Carseats[-Index,]  # 120 observations 
 ```
 
 __Step 2: Build the model__ 
 
-In this stage, we construct the tree using the training set. Following this, we generate predictions and assess its performance on the test data by computing the confusion matrix:
+In this stage, we construct the tree using the training set. 
+We use the <span style="color:blue">rpart()</span> function in the __rpart__ library. 
+For more information about these functions, type `?rpart`.
+Following this, we generate predictions and assess its performance on the test data by computing the confusion matrix:
 
 ```{r}
 library(rpart) 
-fit <- rpart(High ~.-Sales, 
+fit <- rpart(High ~.-Sales,  # Don't include the variable "Sales"
              data = train.data,
-             method = "class")
+             method = "class") # classification trees
 pred <- predict(fit, newdata = test.data, type = "class")
 # Compute accuracy
 table_mat <- table(test.data[, "High"], pred)
@@ -86,8 +85,8 @@ sum(diag(table_mat))/sum(table_mat)
 
 ```
 
-The model accurately predicted 28 child car seats with high sales and correctly classified 25 car seats as not high in sales. However, the model also erroneously classified 21 car seats as high sales when they were actually not high.
-The misclassification rate is calculated as $\dfrac{21 + 11}{119}\approx 0.27$, meaning that the model's accuracy stands at approximately $73\%$.
+The model accurately predicted 30 child car seats with high sales and correctly classified 56 car seats as not high in sales. However, the model also erroneously classified 19 car seats as not high sales when they were actually high.
+The misclassification rate is calculated as $\dfrac{15 + 19}{120}\approx 0.28$, meaning that the model's accuracy stands at approximately $72\%$.
 
 __Step 3: Model visualizing__ 
 
@@ -125,7 +124,7 @@ table_mat
 sum(diag(table_mat))/sum(table_mat)
 ```
 
-Using this approach, we achieve a success rate of approximately $76\%$, surpassing the performance of the previous model.
+Using this approach, we achieve a success rate of approximately $79\%$, surpassing the performance of the previous model.
 
 
 
