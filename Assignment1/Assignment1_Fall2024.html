@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div>
+
+
+
+<h1 class="title toc-ignore"><strong>Assignment 1: Data Analytics (ECMP
+5005B)</strong></h1>
+<h4 class="author"><strong>Fall-2024</strong></h4>
+<h4 class="date">Due date: October 6, 2024</h4>
+
+</div>
+
+
+<div class="section level1">
+<h1>Q1: (80 points)</h1>
+<p>Use the <code>tq_get()</code> function in the package
+<strong>tidyquant</strong> to get the stock prices (from Jan 01, 2018 to
+December 31, 2022) of the two crypto currencies: Bitcoin (“BTC-USD”) and
+Ethereum (“ETH-USD”). Name your data as <strong>df</strong> and use it
+to solve the following questions:</p>
+<div class="section level2">
+<h2>1.1) (10 points)</h2>
+<p>Use the <code>mutate()</code> function from the
+<strong>dplyr</strong> package along with the <code>ymd()</code>
+function from the <strong>lubridate</strong> package to convert the
+<code>date</code> varaible to the format “year-month-day”.</p>
+</div>
+<div class="section level2">
+<h2>1.2) (5 points)</h2>
+<p>Use the <code>mutate()</code> function from the
+<strong>dplyr</strong> package to create a new variable: <span class="math inline">\(r_t = \log x_t -\log x_{t-1}\)</span>, where <span class="math inline">\(r_t\)</span> and <span class="math inline">\(x_t\)</span> are the log returns and closing price
+series, respectively, at time <span class="math inline">\(t\)</span>.
+Name the new variables as <em>ret</em>. <strong>Hint:</strong> To
+calculate <span class="math inline">\(r_t = \log x_t -\log
+x_{t-1}\)</span> for each currency, use the
+<code>case_when(symbol == )</code> function to differentiate between
+currencies. After computing the returns, apply <code>drop_na()</code>
+function to remove any <code>NA</code> values, and then use the
+<code>bind_rows()</code> function to combine the rows from both
+currencies.</p>
+</div>
+<div class="section level2">
+<h2>1.3) (10 points)</h2>
+<p>Use the <code>group_by()</code> and <code>summarise()</code>
+functions from the <strong>dplyr</strong> package to calculate the mean
+and quartiles (1st, 2nd, and 3rd) of the log returns for each currency.
+Provide a comparison of the mean values and the 1st and 3rd quartiles
+between the two currencies.</p>
+</div>
+<div class="section level2">
+<h2>1.4) (10 points)</h2>
+<p>Use the <code>mutate()</code> function from the
+<strong>dplyr</strong> package along with the <code>case_when()</code>
+from the same package and add a new categorical variable called
+<code>covid</code>. This variable should have 3 categories
+<code>&quot;Pre COVID-19&quot;</code> for dates before December 1, 2019,
+<code>&quot;Covid-19&quot;</code> for dates between December 1, 2019, and February
+10, 2022, and <code>&quot;Post COVID-19&quot;</code> for dates after February 10,
+2022.</p>
+</div>
+<div class="section level2">
+<h2>1.5) (10 points)</h2>
+<p>Use the <strong>skimr</strong> package to determine the minimum and
+maximum closing stock prices for both currencies during the COVID-19
+period. Compare the minimum and maximum closing prices of Bitcoin during
+the COVID-19 period with those from the pre-COVID-19 and post-COVID-19
+periods.</p>
+</div>
+<div class="section level2">
+<h2>1.6) (10 points)</h2>
+<p>Use the <code>facet_wrap()</code> function from the
+<strong>ggplot2</strong> package to recreate the plots shown in Figure
+1. Write tidy code to generate these plots and provide a commentary on
+your observations regarding the log returns.</p>
+<p><img src="javascript://" width="100%" style="display: block;margin: auto;"/></p>
+</div>
+<div class="section level2">
+<h2>1.7) (10 points)</h2>
+<p>Write a tidy code to reproduce Figure 2 below.</p>
+<p><img src="javascript://" width="835.2" style="display: block;margin: auto;"/></p>
+</div>
+<div class="section level2">
+<h2>1.8) (10 points)</h2>
+<p>Write a tidy code to reproduce the bar chart in Figure 3 below. Note
+that you need to create an interactive plot using the function
+<code>ggplotly()</code> from the package <strong>plotly</strong>.
+Comment what do you notice about the log returns for both
+currencies?</p>
+<div class="plotly html-widget html-fill-item" style="width:835.2px;height:489.6px;"></div>
+
+</div>
+<div class="section level2">
+<h2>1.9) (5 points)</h2>
+<p>Use the function <code>dygraph()</code> in the package
+<strong>dygraphs</strong> to produce a dynamic graphic of the returns of
+the two series. Add a shading effect to your graph background using a
+<code>color = &quot;#d3d3d3&quot;</code> for the covid-19 period.</p>
+</div>
+</div>
+<div class="section level1">
+<h1>Q2: (20 points)</h1>
+<p>Use the <code>set.seed(123)</code> and the function
+<code>tibble()</code> to generate a random date of dimension <span class="math inline">\(2000\times 6\)</span> with the following variables
+and do some summary statistics:</p>
+<ul>
+<li>Gender: (nominal with two categories “male” and “female”) <span class="math inline">\(40\%\)</span> are males and <span class="math inline">\(60\%\)</span> are females. Use the
+<code>sample()</code> function.</li>
+<li>Age: (numeric) use gamma-distribution with shape 50. Use the
+<code>rgamma()</code> function.</li>
+<li>Height: (numeric) use normal distribution with mean 160 and standard
+deviation 8. Use the <code>rnorm</code>()` function.</li>
+<li>Meal: (integer denotes the number of meals per day) random integers
+from 0 to 6. Use the <code>sample()</code> function.</li>
+<li>Gym: (integer denotes the number of hours spent at the gym per day)
+use uniform distribution that ranges in value from 0 to 10 and round
+your generated data to integer numbers. Use the <code>runif()</code>
+function.</li>
+<li>Status: (nominal denotes the marital status) single, married, and
+others. Use the <code>sample()</code> function.</li>
+<li>Weight: (numeric) use the following equation:</li>
+</ul>
+<p><code>Weight = 0.06  age + 0.7 height + 0.2 meal - 0.1 male - 0.16 gym - 0.12 single - 0.05 married + random error from t-distribution with 5 degrees of freedom</code></p>
+<div class="section level2">
+<h2>2.1) (10 points)</h2>
+<p>Write the code that generates the data as described above.</p>
+</div>
+<div class="section level2">
+<h2>2.2) (5 points)</h2>
+<p>Find the age of the youngest single male who spends 3 hours at gym
+per a day.</p>
+</div>
+<div class="section level2">
+<h2>2.3) (5 points)</h2>
+<p>Suppose you need to provide a promotion for married customers aged
+between 40 and 60 who never go to the gym. Write a code which creates a
+new binary variable (name it as <code>promotion</code>) with two
+categories <code>yes, no</code>. What is the weight average of the those
+who will be eligible to get the promotion?</p>
+</div>
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="module" src="https://s.brightspace.com/lib/bsi/2024.10.207/unbundled/mathjax.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+						if (document.querySelector('math') || /\$\$|\\\(|\\\[|\\begin{|\\ref{|\\eqref{/.test(document.body.innerHTML)) {
+							document.querySelectorAll('mspace[linebreak="newline"]').forEach(elm => {
+								elm.setAttribute('style', 'display: block; height: 0.5rem;');
+							});
+
+							window.D2L.MathJax.loadMathJax({
+								outputScale: 1.3,
+								renderLatex: true,
+								enableMML3Support: false
+							});
+						}
+					});</script><script type="module" src="https://s.brightspace.com/lib/bsi/2024.10.207/unbundled/prism.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					document.querySelectorAll('.d2l-code').forEach(code => {
+						window.D2L.Prism.formatCodeElement(code);
+					});
+				});</script><script type="module" src="https://s.brightspace.com/lib/bsi/2024.10.207/unbundled/embeds.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					window.D2L.EmbedRenderer.renderEmbeds(document.body);
+				});</script></body></html>
