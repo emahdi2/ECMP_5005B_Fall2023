@@ -1,4 +1,4 @@
-ECMP 5005B Fall 2023 (Data Analytics)
+ECMP 5005 (Data Analytics)
 
 Esam Mahdi
 
