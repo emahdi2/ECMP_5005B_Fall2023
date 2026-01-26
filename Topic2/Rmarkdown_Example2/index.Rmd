@@ -12,7 +12,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/Topic2", warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
 ------------------------------------------------------------------------
@@ -24,7 +24,7 @@ We notice that the relationship is between $Y$ and each one of $X'$s looks like 
 Thus, transformation might be needed.
 
 ```{r}
-defects <- read.table("https://gattonweb.uky.edu/sheather/book/docs/datasets/defects.txt", header=TRUE)
+defects <- read.table("https://gattonweb.uky.edu/faculty/sheather/book/docs/datasets/defects.txt", header=TRUE)
 attach(defects)
 # A scatter plot matrix of the defects data
 pairs(Defective ~ Temperature + Density + Rate)
