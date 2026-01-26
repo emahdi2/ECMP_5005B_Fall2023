@@ -12,7 +12,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/Topic2", warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
 ------------------------------------------------------------------------
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE, root.dir = "C:/Users/mahdi/Documents/GitHub/T
 __Menu pricing in a new Italian restaurant in New York City__
 
 Consider the dataset that is available in the file __nyc.csv__ which can be found from the website
-of the book *"A Modern Approach to Regression with R"* written by Simon Sheather \url{https://gattonweb.uky.edu/sheather/book/data_sets.php}.
+of the book *"A Modern Approach to Regression with R"* written by Simon Sheather \url{https://gattonweb.uky.edu/faculty/sheather/book/data_sets.php}.
 The data are in the form of the average of customer views on
 
 -    $Y:~$ Price = the price (in \$US) of dinner (including one drink and a tip).
@@ -42,7 +42,7 @@ For this data, we need to:
 Read and attach the data and named it as `"nyc"`. 
 It is more convenient to attach the data using the function $\color{blue}{\text{attach()}}$, so you can access its variables directly without calling the data.  
 ```{r}
-nyc <- read.csv("https://gattonweb.uky.edu/sheather/book/docs/datasets/nyc.csv", header=TRUE)
+nyc <- read.csv("https://gattonweb.uky.edu/faculty/sheather/book/docs/datasets/nyc.csv", header=TRUE)
 attach(nyc)
 head(nyc) # See the first 6 rows of this data
 str(nyc) # Display the structure of this data
@@ -403,6 +403,7 @@ selection (forward, backward, or stepwise) using an $\color{blue}{\text{AIC}}$ c
 You start from the full model (all variables in the model) deleting 
 predictor variables one at a time, and stopping when the removing of
 variables would no longer improve the model. 
+This can be done by setting the argument $\color{blue}{\text{direction="backward"}}$ within the function $\color{blue}{\text{step()}}$ as follows:
 
 ```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
 full.model <- lm(Price~ Food*East + Decor*East+ Service*East)
@@ -415,10 +416,8 @@ You start from the null model (only intercept with no variables in the model) ad
 predictor variables to the model one at a time, and stopping when the addition of
 variables would no longer improve the model. 
 
-The $\color{blue}{\text{step()}}$ function in __base__ __R__ performs the forward stepwise model
-using an $\color{blue}{\text{AIC}}$ criterion as seen follows: 
+The $\color{blue}{\text{step()}}$ function in __base__ __R__ performs the forward stepwise model, using an $\color{blue}{\text{AIC}}$ criterion, and setting the argument $\color{blue}{\text{direction="forward"}}$ within the function $\color{blue}{\text{step()}}$ as follows:
 
-In this example, this can be done using the function $\color{blue}{\text{step()}}$
 ```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
 null.model <- lm(Price ~ 1, data = nyc)
 forward <- step(null.model, direction="forward",
@@ -428,6 +427,7 @@ summary(forward)
 
 ### Stepwise regression (both): 
 In both stepwise regression, you combine the forward and backward stepwise approaches. Variables are entered one at a time, but at each step, the variables in the model are reevaluated, and those that don’t contribute to the model are deleted. A predictor variable may be added to, and deleted from, a model several times before a final solution is reached.
+This approach is done by setting the argument $\color{blue}{\text{direction="both"}}$ within the function $\color{blue}{\text{step()}}$ as follows:
 
 ```{r,fig.align="center",fig.height = 7, fig.width = 9.5}
 both <- step(null.model, direction="both",
