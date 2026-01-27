@@ -79,7 +79,6 @@
         <li>Poisson regression</li>
       </ul>
     </li>
-
     <li>
       <strong>Linear Model Selection, Regularization & Dimension Reduction</strong>
       <ul>
