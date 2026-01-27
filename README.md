@@ -46,7 +46,6 @@
         <li>Reproducible reporting with R Markdown</li>
       </ul>
     </li>
-
     <li>
       <strong>Data Visualization and Interactive Plots</strong>
       <ul>
@@ -55,7 +54,6 @@
         <li>Interactive plots using <code>plotly</code> and <code>shiny</code></li>
       </ul>
     </li>
-
     <li>
       <strong>Linear Regression</strong>
       <ul>
@@ -64,7 +62,6 @@
         <li>Prediction and inference</li>
       </ul>
     </li>
-
     <li>
       <strong>Resampling Methods</strong>
       <ul>
@@ -73,7 +70,6 @@
         <li>Bootstrap methods</li>
       </ul>
     </li>
-
     <li>
       <strong>Classification & Generalized Linear Models</strong>
       <ul>
@@ -93,7 +89,6 @@
         <li>Factor analysis</li>
       </ul>
     </li>
-
     <li>
       <strong>Decision Trees and Ensemble Methods</strong>
       <ul>
