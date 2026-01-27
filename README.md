@@ -1,5 +1,5 @@
 <div class="section">
-  <h2>📊 ECMP 5005 — Data Analytics</h2>
+  <h1>📊 ECMP 5005 — Data Analytics</h1>
 
   <p>
     <strong>Course Audience:</strong> Master of Engineering (M.Eng.) and Data Science students
